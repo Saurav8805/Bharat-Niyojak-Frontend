@@ -10,17 +10,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center">
               <img 
                 src="/logo.png" 
                 alt="Bharat Niyojak Logo" 
-                className="h-10 w-10 object-cover object-left"
-                style={{ objectPosition: 'left center' }}
+                className="h-14 w-auto object-contain"
               />
-              <div>
-                <div className="text-lg font-bold">Bharat Niyojak</div>
-                <div className="text-xs text-gray-400">भारत नियोजक</div>
-              </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               AI-Powered Civic Issue Reporting System. Making India cleaner, safer, and smarter - one report at a time.

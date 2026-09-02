@@ -25,8 +25,7 @@ export default function Navbar() {
             <img 
               src="/logo.png" 
               alt="Bharat Niyojak Logo" 
-              className="h-14 w-14 object-cover object-left"
-              style={{ objectPosition: 'left center' }}
+              className="h-16 w-auto object-contain"
             />
           </Link>
 
