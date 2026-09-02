@@ -6,7 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 
 export default function DisclaimerPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-transparent relative">
       <Navbar />
 
       {/* Hero Section */}

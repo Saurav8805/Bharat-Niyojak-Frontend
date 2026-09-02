@@ -7,11 +7,11 @@ import { ArrowRight, Check, Zap, Shield, TrendingUp, Users, MapPin, Clock } from
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen" style={{ background: 'rgba(255, 255, 255, 0.95)' }}>
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50 pt-20 pb-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50/90 via-white/90 to-primary-50/90 backdrop-blur-sm pt-20 pb-32">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-100 rounded-full blur-3xl opacity-30 -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-200 rounded-full blur-3xl opacity-20 -z-10"></div>
@@ -82,7 +82,7 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20" style={{ background: 'rgba(255, 255, 255, 0.9)' }}>
+      <section className="py-20 bg-white/85 backdrop-blur-sm relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
@@ -201,7 +201,7 @@ export default function HomePage() {
       </section>
 
       {/* Issue Categories */}
-      <section className="py-20" style={{ background: 'rgba(255, 255, 255, 0.9)' }}>
+      <section className="py-20 bg-white/85 backdrop-blur-sm relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">

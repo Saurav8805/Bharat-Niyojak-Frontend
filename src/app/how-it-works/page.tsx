@@ -6,7 +6,7 @@ import { Camera, Upload, Brain, Send, Bell, CheckCircle, BarChart } from 'lucide
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-transparent relative">
       <Navbar />
 
       {/* Hero Section */}
