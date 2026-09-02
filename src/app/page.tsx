@@ -11,7 +11,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50 pt-12 pb-16">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50 pt-16 pb-20">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100 rounded-full blur-3xl opacity-20 -z-10"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-200 rounded-full blur-3xl opacity-15 -z-10"></div>
@@ -64,7 +64,7 @@ export default function HomePage() {
                 { value: '24/7', label: 'AI Support' },
                 { value: '500+', label: 'Cities Covered' },
               ].map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg p-4 shadow-md border border-gray-100">
+                <div key={index} className="bg-white rounded-lg p-4 shadow-md border border-gray-100 hover:shadow-xl hover:border-primary-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer">
                   <div className="text-2xl font-bold text-primary-600 mb-1">{stat.value}</div>
                   <div className="text-xs text-gray-600">{stat.label}</div>
                 </div>
@@ -82,7 +82,7 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-12 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">
@@ -118,17 +118,17 @@ export default function HomePage() {
               }
             ].map((item, index) => (
               <div key={index} className="group relative">
-                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:border-primary-200 transition-all hover:shadow-lg transform hover:-translate-y-1">
-                  <div className={`w-14 h-14 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md`}>
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:border-primary-300 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 cursor-pointer">
+                  <div className={`w-14 h-14 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md group-hover:scale-110 transition-transform duration-300`}>
                     <item.icon className="w-7 h-7 text-white" />
                   </div>
                   <div className="text-xs font-bold text-primary-600 mb-2">{item.step}</div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">{item.title}</h3>
                   <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
                 </div>
                 {index < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                    <ArrowRight className="w-6 h-6 text-gray-300" />
+                    <ArrowRight className="w-6 h-6 text-gray-300 group-hover:text-primary-400 transition-colors" />
                   </div>
                 )}
               </div>
@@ -138,7 +138,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">
@@ -188,11 +188,11 @@ export default function HomePage() {
                 color: 'bg-indigo-100 text-indigo-600'
               }
             ].map((feature, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-100 hover:border-primary-200 group">
-                <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-105 transition-transform`}>
+              <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-300 group cursor-pointer transform hover:-translate-y-1">
+                <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-base font-bold text-gray-900 mb-2">{feature.title}</h3>
+                <h3 className="text-base font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">{feature.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
@@ -201,7 +201,7 @@ export default function HomePage() {
       </section>
 
       {/* Issue Categories */}
-      <section className="py-12 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-3">
@@ -227,9 +227,9 @@ export default function HomePage() {
             ].map((item, index) => (
               <div 
                 key={index}
-                className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center transition-all cursor-pointer transform hover:scale-105 hover:shadow-md ${item.color}`}
+                className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center transition-all duration-300 cursor-pointer transform hover:scale-110 hover:shadow-lg ${item.color}`}
               >
-                <item.icon className="w-7 h-7 mx-auto mb-2 text-gray-700" />
+                <item.icon className="w-7 h-7 mx-auto mb-2 text-gray-700 transition-transform duration-300 hover:rotate-12" />
                 <div className="text-xs font-semibold text-gray-700">{item.name}</div>
               </div>
             ))}

@@ -10,19 +10,24 @@ export default function HowItWorksPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-4">
             How It Works
           </h1>
-          <p className="text-base md:text-lg opacity-90">
+          <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto">
             Simple, Fast, and Intelligent - Report civic issues in 3 easy steps
           </p>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 flex">
+          <div className="flex-1 bg-india-saffron"></div>
+          <div className="flex-1 bg-india-white"></div>
+          <div className="flex-1 bg-india-green"></div>
         </div>
       </section>
 
       {/* Step-by-Step Process */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Step 1 */}
@@ -43,18 +48,18 @@ export default function HowItWorksPage() {
                     { icon: <Upload className="w-5 h-5" />, text: 'Add multiple photos for better context' },
                     { icon: <CheckCircle className="w-5 h-5" />, text: 'GPS automatically captures location' }
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-2">
-                      <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 text-blue-600">
+                    <li key={index} className="flex items-start space-x-2 group cursor-pointer">
+                      <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 text-blue-600 group-hover:scale-110 transition-transform duration-300">
                         {item.icon}
                       </div>
-                      <span className="text-sm text-gray-700 mt-1.5">{item.text}</span>
+                      <span className="text-sm text-gray-700 mt-1.5 group-hover:text-blue-600 transition-colors">{item.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-8 text-center">
-                <Camera className="w-24 h-24 mx-auto text-blue-600 mb-4" />
-                <p className="text-lg font-bold text-gray-800">Take a Photo</p>
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+                <Camera className="w-24 h-24 mx-auto text-blue-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-lg font-bold text-gray-800 group-hover:text-blue-700 transition-colors">Take a Photo</p>
               </div>
             </div>
           </div>
@@ -77,18 +82,18 @@ export default function HowItWorksPage() {
                     { icon: <BarChart className="w-5 h-5" />, text: 'Severity assessment (low, medium, high, critical)' },
                     { icon: <Send className="w-5 h-5" />, text: 'Auto-routing to correct municipal department' }
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-2">
-                      <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 text-purple-600">
+                    <li key={index} className="flex items-start space-x-2 group cursor-pointer">
+                      <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 text-purple-600 group-hover:scale-110 transition-transform duration-300">
                         {item.icon}
                       </div>
-                      <span className="text-sm text-gray-700 mt-1.5">{item.text}</span>
+                      <span className="text-sm text-gray-700 mt-1.5 group-hover:text-purple-600 transition-colors">{item.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="md:order-1 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-8 text-center">
-                <Brain className="w-24 h-24 mx-auto text-purple-600 mb-4" />
-                <p className="text-lg font-bold text-gray-800">AI Processing</p>
+              <div className="md:order-1 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+                <Brain className="w-24 h-24 mx-auto text-purple-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-lg font-bold text-gray-800 group-hover:text-purple-700 transition-colors">AI Processing</p>
               </div>
             </div>
           </div>
@@ -111,18 +116,18 @@ export default function HowItWorksPage() {
                     { icon: <BarChart className="w-5 h-5" />, text: 'View progress timeline and department actions' },
                     { icon: <CheckCircle className="w-5 h-5" />, text: 'Verify resolution with before/after photos' }
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-2">
-                      <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 text-green-600">
+                    <li key={index} className="flex items-start space-x-2 group cursor-pointer">
+                      <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 text-green-600 group-hover:scale-110 transition-transform duration-300">
                         {item.icon}
                       </div>
-                      <span className="text-sm text-gray-700 mt-1.5">{item.text}</span>
+                      <span className="text-sm text-gray-700 mt-1.5 group-hover:text-green-600 transition-colors">{item.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-8 text-center">
-                <CheckCircle className="w-24 h-24 mx-auto text-green-600 mb-4" />
-                <p className="text-lg font-bold text-gray-800">Issue Resolved</p>
+              <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+                <CheckCircle className="w-24 h-24 mx-auto text-green-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-lg font-bold text-gray-800 group-hover:text-green-700 transition-colors">Issue Resolved</p>
               </div>
             </div>
           </div>
@@ -130,7 +135,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Status Lifecycle */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Issue Status Lifecycle</h2>
@@ -164,7 +169,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Video Demo Section */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">See It In Action</h2>
           <p className="text-xl text-gray-600 mb-10">Watch how easy it is to report and track civic issues</p>
@@ -178,7 +183,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-xl mb-10 opacity-90">

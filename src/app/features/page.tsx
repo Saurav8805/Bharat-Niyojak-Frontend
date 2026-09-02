@@ -97,12 +97,12 @@ export default function FeaturesPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-4">
             Powerful Features
           </h1>
-          <p className="text-base md:text-lg opacity-90">
+          <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto">
             Everything you need to report, track, and resolve civic issues efficiently
           </p>
         </div>
@@ -114,18 +114,18 @@ export default function FeaturesPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-100 hover:border-primary-200 group"
+                className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-300 group cursor-pointer transform hover:-translate-y-1"
               >
-                <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
+                <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-3">{feature.title}</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">{feature.title}</h3>
                 <p className="text-sm text-gray-600 mb-4 leading-relaxed">{feature.description}</p>
                 <ul className="space-y-1.5">
                   {feature.benefits.map((benefit, idx) => (
@@ -144,7 +144,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Comparison Section */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Traditional vs Bharat Niyojak</h2>
@@ -204,7 +204,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Experience the Future of Civic Reporting</h2>
           <p className="text-base mb-6 opacity-90">

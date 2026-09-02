@@ -29,14 +29,14 @@ export default function AboutPage() {
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-12 bg-white">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl">
-              <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+              <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Target className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-3">Our Mission</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-700 transition-colors">Our Mission</h2>
               <p className="text-sm text-gray-700 leading-relaxed">
                 To empower every Indian citizen with a simple, intelligent platform that transforms 
                 civic reporting from a frustrating bureaucratic process into a seamless, impactful 
@@ -45,11 +45,11 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Lightbulb className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-3">Our Vision</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-green-700 transition-colors">Our Vision</h2>
               <p className="text-sm text-gray-700 leading-relaxed">
                 To create a future where every civic issue is resolved efficiently, transparently, 
                 and collaboratively. We envision cities where citizens and governments work together 
@@ -61,7 +61,7 @@ export default function AboutPage() {
       </section>
 
       {/* Story Section */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Story</h2>
@@ -97,7 +97,7 @@ export default function AboutPage() {
       </section>
 
       {/* Core Values */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Our Core Values</h2>
@@ -143,11 +143,11 @@ export default function AboutPage() {
                 color: 'bg-indigo-100 text-indigo-600'
               }
             ].map((value, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all group">
-                <div className={`w-12 h-12 ${value.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform`}>
+              <div key={index} className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-xl hover:border-primary-300 transition-all duration-300 group cursor-pointer transform hover:-translate-y-1">
+                <div className={`w-12 h-12 ${value.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   {value.icon}
                 </div>
-                <h3 className="text-base font-bold text-gray-900 mb-2">{value.title}</h3>
+                <h3 className="text-base font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">{value.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{value.description}</p>
               </div>
             ))}
@@ -170,8 +170,8 @@ export default function AboutPage() {
               { number: '2M+', label: 'Citizens Served' },
               { number: '95%', label: 'Success Rate' }
             ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold mb-2">{stat.number}</div>
+              <div key={index} className="text-center transform hover:scale-110 transition-transform duration-300 cursor-pointer">
+                <div className="text-3xl font-bold mb-2 hover:text-primary-100 transition-colors">{stat.number}</div>
                 <div className="text-sm opacity-90">{stat.label}</div>
               </div>
             ))}

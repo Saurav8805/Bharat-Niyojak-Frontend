@@ -36,16 +36,20 @@ export default function ContactPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <MessageCircle className="w-12 h-12 mx-auto mb-4" />
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">Contact Us</h1>
-          <p className="text-base opacity-90">We're here to help. Reach out anytime!</p>
+      <section className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-4">Contact Us</h1>
+          <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto">We're here to help. Reach out anytime!</p>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 flex">
+          <div className="flex-1 bg-india-saffron"></div>
+          <div className="flex-1 bg-india-white"></div>
+          <div className="flex-1 bg-india-green"></div>
         </div>
       </section>
 
       {/* Contact Information & Form */}
-      <section className="py-12">
+      <section className="py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8">
             
@@ -59,12 +63,12 @@ export default function ContactPage() {
 
               <div className="space-y-4">
                 {/* Email */}
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-3 group cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-all duration-300">
+                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <Mail className="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900 mb-1">Email</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">Email</h3>
                     <a href="mailto:support@bharatniyojak.in" className="text-sm text-primary-600 hover:underline">
                       support@bharatniyojak.in
                     </a>
@@ -73,12 +77,12 @@ export default function ContactPage() {
                 </div>
 
                 {/* Phone */}
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-3 group cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-all duration-300">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <Phone className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900 mb-1">Phone</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-green-600 transition-colors">Phone</h3>
                     <a href="tel:+911234567890" className="text-sm text-primary-600 hover:underline">
                       +91 123 456 7890
                     </a>
@@ -87,12 +91,12 @@ export default function ContactPage() {
                 </div>
 
                 {/* Address */}
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-3 group cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-all duration-300">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <MapPin className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900 mb-1">Office</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">Office</h3>
                     <p className="text-sm text-gray-700">
                       Bharat Niyojak Headquarters<br />
                       Connaught Place<br />
@@ -102,12 +106,12 @@ export default function ContactPage() {
                 </div>
 
                 {/* Hours */}
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-3 group cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-all duration-300">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <Clock className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900 mb-1">Business Hours</h3>
+                    <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Business Hours</h3>
                     <p className="text-sm text-gray-700">
                       Monday - Friday: 9:00 AM - 6:00 PM<br />
                       Saturday: 10:00 AM - 4:00 PM<br />
@@ -118,17 +122,17 @@ export default function ContactPage() {
               </div>
 
               {/* FAQ Link */}
-              <div className="mt-6 p-4 bg-primary-50 rounded-lg border border-primary-200">
+              <div className="mt-6 p-4 bg-primary-50 rounded-lg border border-primary-200 hover:bg-primary-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
                 <div className="flex items-center space-x-2 mb-2">
-                  <HelpCircle className="w-5 h-5 text-primary-600" />
-                  <h3 className="text-base font-bold text-gray-900">Need Quick Help?</h3>
+                  <HelpCircle className="w-5 h-5 text-primary-600 group-hover:scale-110 transition-transform duration-300" />
+                  <h3 className="text-base font-bold text-gray-900 group-hover:text-primary-700 transition-colors">Need Quick Help?</h3>
                 </div>
                 <p className="text-sm text-gray-700 mb-3">
                   Check our FAQ section for instant answers to common questions.
                 </p>
                 <a 
                   href="/faq"
-                  className="inline-block px-4 py-2 text-sm bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all"
+                  className="inline-block px-4 py-2 text-sm bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all transform hover:scale-105"
                 >
                   View FAQ
                 </a>
