@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { ThemeProvider } from '@/contexts/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'Bharat Niyojak - AI-Powered Civic Issue Reporting',
@@ -18,10 +17,8 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className="bg-gray-50 dark:bg-gray-900">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+      <body className="bg-gray-50">
+        {children}
       </body>
     </html>
   )
