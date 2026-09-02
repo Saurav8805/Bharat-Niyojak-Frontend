@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Galaxy from '@/components/Galaxy'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'Bharat Niyojak - AI-Powered Civic Issue Reporting',
@@ -19,22 +20,24 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <Galaxy 
-          mouseRepulsion
-          mouseInteraction
-          density={1}
-          glowIntensity={0.3}
-          saturation={0}
-          hueShift={140}
-          twinkleIntensity={0.3}
-          rotationSpeed={0.05}
-          repulsionStrength={2}
-          autoCenterRepulsion={0}
-          starSpeed={0.25}
-          speed={0.5}
-          transparent={true}
-        />
-        {children}
+        <ThemeProvider>
+          <Galaxy 
+            mouseRepulsion
+            mouseInteraction
+            density={1}
+            glowIntensity={0.3}
+            saturation={0}
+            hueShift={140}
+            twinkleIntensity={0.3}
+            rotationSpeed={0.05}
+            repulsionStrength={2}
+            autoCenterRepulsion={0}
+            starSpeed={0.25}
+            speed={0.5}
+            transparent={true}
+          />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

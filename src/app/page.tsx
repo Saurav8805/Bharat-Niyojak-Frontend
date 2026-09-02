@@ -7,11 +7,11 @@ import { ArrowRight, Check, Zap, Shield, TrendingUp, Users, MapPin, Clock } from
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-transparent">
       <Navbar />
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50/90 via-white/90 to-primary-50/90 backdrop-blur-sm pt-20 pb-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50/90 via-white/90 to-primary-50/90 dark:from-gray-900/90 dark:via-gray-800/90 dark:to-gray-900/90 backdrop-blur-sm pt-20 pb-32 transition-colors duration-300">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary-100 rounded-full blur-3xl opacity-30 -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary-200 rounded-full blur-3xl opacity-20 -z-10"></div>
@@ -23,19 +23,19 @@ export default function HomePage() {
               AI-Powered Civic Intelligence
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight transition-colors">
               भारत नियोजक
             </h1>
             
-            <p className="text-3xl md:text-4xl text-primary-600 font-bold mb-4">
+            <p className="text-3xl md:text-4xl text-primary-600 dark:text-primary-400 font-bold mb-4 transition-colors">
               Report. Route. Resolve.
             </p>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto transition-colors">
               "One Photo. One Click. The Right Authority."
             </p>
             
-            <p className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto transition-colors">
               Transform your city with intelligent civic reporting. AI-powered issue detection, 
               smart routing, and real-time resolution tracking.
             </p>
@@ -64,9 +64,9 @@ export default function HomePage() {
                 { value: '24/7', label: 'AI Support' },
                 { value: '500+', label: 'Cities Covered' },
               ].map((stat, index) => (
-                <div key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
-                  <div className="text-3xl font-bold text-primary-600 mb-1">{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                <div key={index} className="bg-white/95 dark:bg-gray-800/95 rounded-xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
+                  <div className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-1 transition-colors">{stat.value}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300 transition-colors">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -82,13 +82,13 @@ export default function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 bg-white/85 backdrop-blur-sm relative">
+      <section className="py-20 bg-white/85 dark:bg-gray-900/85 backdrop-blur-sm relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 transition-colors">
               How It Works
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto transition-colors">
               Three simple steps to make your city better
             </p>
           </div>
@@ -201,7 +201,7 @@ export default function HomePage() {
       </section>
 
       {/* Issue Categories */}
-      <section className="py-20 bg-white/85 backdrop-blur-sm relative">
+      <section className="py-20 bg-white/85 dark:bg-gray-800/85 backdrop-blur-sm relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">

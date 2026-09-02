@@ -286,9 +286,8 @@ export default function Galaxy({
     animateId = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
     function handleMouseMove(e: MouseEvent) {
-      const rect = ctn.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = 1.0 - (e.clientY - rect.top) / rect.height;
+      const x = e.clientX / window.innerWidth;
+      const y = 1.0 - e.clientY / window.innerHeight;
       targetMousePos.current = { x, y };
       targetMouseActive.current = 1.0;
     }
@@ -296,15 +295,15 @@ export default function Galaxy({
       targetMouseActive.current = 0.0;
     }
     if (mouseInteraction) {
-      ctn.addEventListener('mousemove', handleMouseMove);
-      ctn.addEventListener('mouseleave', handleMouseLeave);
+      window.addEventListener('mousemove', handleMouseMove);
+      document.body.addEventListener('mouseleave', handleMouseLeave);
     }
     return () => {
       cancelAnimationFrame(animateId);
       window.removeEventListener('resize', resize);
       if (mouseInteraction) {
-        ctn.removeEventListener('mousemove', handleMouseMove);
-        ctn.removeEventListener('mouseleave', handleMouseLeave);
+        window.removeEventListener('mousemove', handleMouseMove);
+        document.body.removeEventListener('mouseleave', handleMouseLeave);
       }
       ctn.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
@@ -339,7 +338,7 @@ export default function Galaxy({
         width: '100%',
         height: '100%',
         zIndex: -1,
-        pointerEvents: mouseInteraction ? 'auto' : 'none',
+        pointerEvents: 'none', // Fixed: Allow clicks to pass through to content below
       }}
     />
   );

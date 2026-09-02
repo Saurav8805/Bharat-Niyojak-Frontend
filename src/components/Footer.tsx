@@ -5,7 +5,7 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-gray-900/95 to-gray-950/95 backdrop-blur-md text-white relative">
+    <footer className="bg-gradient-to-b from-gray-900/95 to-gray-950/95 dark:from-gray-950/98 dark:to-black/98 backdrop-blur-md text-white relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
