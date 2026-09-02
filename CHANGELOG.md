@@ -4,6 +4,16 @@ All notable changes to Bharat Niyojak Frontend will be documented in this file.
 
 ## [Unreleased] - 2026-09-02
 
+### Added
+- **Galaxy Background Everywhere:** WebGL Galaxy background now visible across entire website
+  - Fixed-position Galaxy component covers full viewport
+  - Transparent/semi-transparent backgrounds on all pages
+  - Navbar: 80% opacity with backdrop blur
+  - Footer: 95% opacity with backdrop blur
+  - All page sections: 80-90% opacity with backdrop blur
+  - Smooth starfield animation at half speed (as requested)
+  - Mouse interaction and repulsion effects working globally
+
 ### Removed
 - **Get Started Button:** Removed "Get Started" button from Navbar
   - Desktop navigation now shows only "Login" button
