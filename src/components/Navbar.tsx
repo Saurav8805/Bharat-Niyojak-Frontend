@@ -42,19 +42,13 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* CTA Button */}
+          <div className="hidden md:flex items-center">
             <Link
               href="/login"
               className="px-5 py-2.5 text-primary-600 font-semibold hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-all"
             >
               Login
-            </Link>
-            <Link
-              href="/register"
-              className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-semibold hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg"
-            >
-              Get Started
             </Link>
           </div>
 
@@ -81,20 +75,13 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-4 border-t border-gray-200 space-y-2">
+              <div className="pt-4 border-t border-gray-200">
                 <Link
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}
                   className="block w-full px-4 py-3 text-center text-primary-600 font-semibold border-2 border-primary-500 rounded-lg hover:bg-primary-50 transition-all"
                 >
                   Login
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full px-4 py-3 text-center bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-semibold hover:from-primary-600 hover:to-primary-700 transition-all shadow-md"
-                >
-                  Get Started
                 </Link>
               </div>
             </div>
