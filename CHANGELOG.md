@@ -4,6 +4,12 @@ All notable changes to Bharat Niyojak Frontend will be documented in this file.
 
 ## [Unreleased] - 2026-09-02
 
+### Removed
+- **Get Started Button:** Removed "Get Started" button from Navbar
+  - Desktop navigation now shows only "Login" button
+  - Mobile navigation now shows only "Login" button
+  - Simplified navigation for cleaner UI
+
 ### Fixed
 - **Logo Visibility:** Improved logo display in Navbar and Footer
   - Changed from cropped icon to full logo with text
