@@ -32,7 +32,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent relative">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}

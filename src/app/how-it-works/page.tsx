@@ -6,7 +6,7 @@ import { Camera, Upload, Brain, Send, Bell, CheckCircle, BarChart } from 'lucide
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-transparent relative">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}
@@ -52,10 +52,9 @@ export default function HowItWorksPage() {
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl p-12 text-center">
-                <Camera className="w-32 h-32 mx-auto text-blue-600 mb-6" />
-                <div className="text-6xl mb-4">📸</div>
-                <p className="text-2xl font-bold text-gray-800">Take a Photo</p>
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-3xl p-12 text-center">
+                <Camera className="w-32 h-32 mx-auto text-blue-600 dark:text-blue-400 mb-6" />
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">Take a Photo</p>
               </div>
             </div>
           </div>
@@ -87,10 +86,9 @@ export default function HowItWorksPage() {
                   ))}
                 </ul>
               </div>
-              <div className="md:order-1 bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl p-12 text-center">
-                <Brain className="w-32 h-32 mx-auto text-purple-600 mb-6" />
-                <div className="text-6xl mb-4">🤖</div>
-                <p className="text-2xl font-bold text-gray-800">AI Processing</p>
+              <div className="md:order-1 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 rounded-3xl p-12 text-center">
+                <Brain className="w-32 h-32 mx-auto text-purple-600 dark:text-purple-400 mb-6" />
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">AI Processing</p>
               </div>
             </div>
           </div>
@@ -122,10 +120,9 @@ export default function HowItWorksPage() {
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-3xl p-12 text-center">
-                <CheckCircle className="w-32 h-32 mx-auto text-green-600 mb-6" />
-                <div className="text-6xl mb-4">✅</div>
-                <p className="text-2xl font-bold text-gray-800">Issue Resolved</p>
+              <div className="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 rounded-3xl p-12 text-center">
+                <CheckCircle className="w-32 h-32 mx-auto text-green-600 dark:text-green-400 mb-6" />
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">Issue Resolved</p>
               </div>
             </div>
           </div>

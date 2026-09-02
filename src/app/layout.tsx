@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Galaxy from '@/components/Galaxy'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 
 export const metadata: Metadata = {
@@ -19,23 +18,8 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body>
+      <body className="bg-gray-50 dark:bg-gray-900">
         <ThemeProvider>
-          <Galaxy 
-            mouseRepulsion
-            mouseInteraction
-            density={1}
-            glowIntensity={0.3}
-            saturation={0}
-            hueShift={140}
-            twinkleIntensity={0.3}
-            rotationSpeed={0.05}
-            repulsionStrength={2}
-            autoCenterRepulsion={0}
-            starSpeed={0.25}
-            speed={0.5}
-            transparent={true}
-          />
           {children}
         </ThemeProvider>
       </body>

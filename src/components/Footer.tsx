@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Heart, IndianRupee } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-gray-900/95 to-gray-950/95 dark:from-gray-950/98 dark:to-black/98 backdrop-blur-md text-white relative transition-colors duration-300">
+    <footer className="bg-gradient-to-b from-gray-900 to-gray-950 dark:from-gray-950 dark:to-black text-white relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
@@ -124,8 +124,8 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-500 text-sm text-center md:text-left">
-              © {new Date().getFullYear()} Bharat Niyojak. All rights reserved. Made with ❤️ in India 🇮🇳
+            <p className="text-gray-500 text-sm text-center md:text-left flex items-center justify-center md:justify-start gap-1">
+              © {new Date().getFullYear()} Bharat Niyojak. All rights reserved. Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> in India
             </p>
             <div className="flex items-center space-x-6 text-sm text-gray-500">
               <span>Version 1.0.0</span>

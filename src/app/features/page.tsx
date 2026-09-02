@@ -2,7 +2,7 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Zap, Shield, MapPin, Bell, BarChart3, Users, Globe, Clock, Smartphone, Award, TrendingUp, Lock } from 'lucide-react';
+import { Zap, Shield, MapPin, Bell, BarChart3, Users, Globe, Clock, Smartphone, Award, TrendingUp, Lock, Rocket, X, Check } from 'lucide-react';
 
 export default function FeaturesPage() {
   const features = [
@@ -93,7 +93,7 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-transparent relative">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}
@@ -169,18 +169,18 @@ export default function FeaturesPage() {
                   'Often requires physical visits'
                 ].map((item, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-red-500 mr-3 flex-shrink-0">✗</span>
-                    <span className="text-gray-700">{item}</span>
+                    <X className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 dark:text-gray-300">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Bharat Niyojak Way */}
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-8 rounded-2xl shadow-lg border-2 border-primary-300">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-8 rounded-2xl shadow-lg border-2 border-primary-300 dark:border-primary-700">
               <div className="text-center mb-6">
-                <div className="text-5xl mb-4">🚀</div>
-                <h3 className="text-2xl font-bold text-gray-900">With Bharat Niyojak</h3>
+                <Rocket className="w-16 h-16 mx-auto text-primary-600 dark:text-primary-400 mb-4" />
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">With Bharat Niyojak</h3>
               </div>
               <ul className="space-y-4">
                 {[
@@ -193,8 +193,8 @@ export default function FeaturesPage() {
                   'Report from anywhere, anytime'
                 ].map((item, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-3 flex-shrink-0">✓</span>
-                    <span className="text-gray-700 font-medium">{item}</span>
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>

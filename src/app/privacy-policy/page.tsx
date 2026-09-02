@@ -6,7 +6,7 @@ import { Shield, Lock, Eye, UserCheck, Bell, Database } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-transparent relative">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}
