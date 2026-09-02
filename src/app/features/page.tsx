@@ -2,7 +2,7 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Zap, Shield, MapPin, Bell, BarChart3, Users, Globe, Clock, Smartphone, Award, TrendingUp, Lock } from 'lucide-react';
+import { Zap, Shield, MapPin, Bell, BarChart3, Users, Globe, Clock, Smartphone, Award, TrendingUp, Lock, Rocket, X, Check } from 'lucide-react';
 
 export default function FeaturesPage() {
   const features = [
@@ -93,20 +93,20 @@ export default function FeaturesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
+      <section className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-4">
             Powerful Features
           </h1>
-          <p className="text-xl md:text-2xl opacity-90">
+          <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto">
             Everything you need to report, track, and resolve civic issues efficiently
           </p>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-2 flex">
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 flex">
           <div className="flex-1 bg-india-saffron"></div>
           <div className="flex-1 bg-india-white"></div>
           <div className="flex-1 bg-india-green"></div>
@@ -114,23 +114,23 @@ export default function FeaturesPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all border-2 border-gray-100 hover:border-primary-200 group"
+                className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-300 group cursor-pointer transform hover:-translate-y-1"
               >
-                <div className={`w-16 h-16 ${feature.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   {feature.icon}
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{feature.title}</h3>
-                <p className="text-gray-600 mb-6 leading-relaxed">{feature.description}</p>
-                <ul className="space-y-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">{feature.title}</h3>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">{feature.description}</p>
+                <ul className="space-y-1.5">
                   {feature.benefits.map((benefit, idx) => (
-                    <li key={idx} className="flex items-center text-sm text-gray-700">
-                      <svg className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <li key={idx} className="flex items-center text-xs text-gray-700">
+                      <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       {benefit}
@@ -144,19 +144,19 @@ export default function FeaturesPage() {
       </section>
 
       {/* Comparison Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Traditional vs Bharat Niyojak</h2>
-            <p className="text-xl text-gray-600">See the difference for yourself</p>
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Traditional vs Bharat Niyojak</h2>
+            <p className="text-base text-gray-600">See the difference for yourself</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             {/* Traditional Way */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-gray-200">
-              <div className="text-center mb-6">
-                <div className="text-5xl mb-4">😓</div>
-                <h3 className="text-2xl font-bold text-gray-900">Traditional Reporting</h3>
+            <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+              <div className="text-center mb-4">
+                <div className="text-3xl mb-3">😓</div>
+                <h3 className="text-lg font-bold text-gray-900">Traditional Reporting</h3>
               </div>
               <ul className="space-y-4">
                 {[
@@ -169,18 +169,18 @@ export default function FeaturesPage() {
                   'Often requires physical visits'
                 ].map((item, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-red-500 mr-3 flex-shrink-0">✗</span>
-                    <span className="text-gray-700">{item}</span>
+                    <X className="w-5 h-5 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 dark:text-gray-300">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Bharat Niyojak Way */}
-            <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-8 rounded-2xl shadow-lg border-2 border-primary-300">
-              <div className="text-center mb-6">
-                <div className="text-5xl mb-4">🚀</div>
-                <h3 className="text-2xl font-bold text-gray-900">With Bharat Niyojak</h3>
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 p-6 rounded-xl shadow-md border border-primary-300">
+              <div className="text-center mb-4">
+                <Rocket className="w-12 h-12 mx-auto text-primary-600 mb-3" />
+                <h3 className="text-lg font-bold text-gray-900">With Bharat Niyojak</h3>
               </div>
               <ul className="space-y-4">
                 {[
@@ -193,8 +193,8 @@ export default function FeaturesPage() {
                   'Report from anywhere, anytime'
                 ].map((item, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-3 flex-shrink-0">✓</span>
-                    <span className="text-gray-700 font-medium">{item}</span>
+                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -204,15 +204,15 @@ export default function FeaturesPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-6">Experience the Future of Civic Reporting</h2>
-          <p className="text-xl mb-10 opacity-90">
+      <section className="py-16 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">Experience the Future of Civic Reporting</h2>
+          <p className="text-base mb-6 opacity-90">
             Join thousands of citizens already making a difference
           </p>
           <a 
             href="/register"
-            className="inline-block px-10 py-4 bg-white text-primary-600 text-lg font-bold rounded-xl hover:bg-gray-100 transition-all shadow-2xl transform hover:scale-105"
+            className="inline-block px-6 py-2.5 bg-white text-primary-600 text-sm font-bold rounded-lg hover:bg-gray-100 transition-all shadow-lg transform hover:scale-105"
           >
             Get Started Free
           </a>

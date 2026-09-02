@@ -6,126 +6,128 @@ import { Camera, Upload, Brain, Send, Bell, CheckCircle, BarChart } from 'lucide
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
+      <section className="relative bg-gradient-to-br from-primary-600 to-primary-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-4">
             How It Works
           </h1>
-          <p className="text-xl md:text-2xl opacity-90">
+          <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto">
             Simple, Fast, and Intelligent - Report civic issues in 3 easy steps
           </p>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 flex">
+          <div className="flex-1 bg-india-saffron"></div>
+          <div className="flex-1 bg-india-white"></div>
+          <div className="flex-1 bg-india-green"></div>
         </div>
       </section>
 
       {/* Step-by-Step Process */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Step 1 */}
-          <div className="mb-20">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="mb-12">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full font-bold mb-4">
+                <div className="inline-block px-3 py-1.5 bg-blue-100 text-blue-600 rounded-full font-bold text-xs mb-3">
                   Step 1
                 </div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-6">Capture the Issue</h2>
-                <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Capture the Issue</h2>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                   See a pothole, garbage pile, or broken streetlight? Simply take a photo using your 
                   smartphone camera or upload an existing image from your gallery.
                 </p>
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {[
-                    { icon: <Camera className="w-6 h-6" />, text: 'Use your phone camera or upload from gallery' },
-                    { icon: <Upload className="w-6 h-6" />, text: 'Add multiple photos for better context' },
-                    { icon: <CheckCircle className="w-6 h-6" />, text: 'GPS automatically captures location' }
+                    { icon: <Camera className="w-5 h-5" />, text: 'Use your phone camera or upload from gallery' },
+                    { icon: <Upload className="w-5 h-5" />, text: 'Add multiple photos for better context' },
+                    { icon: <CheckCircle className="w-5 h-5" />, text: 'GPS automatically captures location' }
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 text-blue-600">
+                    <li key={index} className="flex items-start space-x-2 group cursor-pointer">
+                      <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 text-blue-600 group-hover:scale-110 transition-transform duration-300">
                         {item.icon}
                       </div>
-                      <span className="text-lg text-gray-700 mt-2">{item.text}</span>
+                      <span className="text-sm text-gray-700 mt-1.5 group-hover:text-blue-600 transition-colors">{item.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl p-12 text-center">
-                <Camera className="w-32 h-32 mx-auto text-blue-600 mb-6" />
-                <div className="text-6xl mb-4">📸</div>
-                <p className="text-2xl font-bold text-gray-800">Take a Photo</p>
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+                <Camera className="w-24 h-24 mx-auto text-blue-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-lg font-bold text-gray-800 group-hover:text-blue-700 transition-colors">Take a Photo</p>
               </div>
             </div>
           </div>
 
           {/* Step 2 */}
-          <div className="mb-20">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="mb-12">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="md:order-2">
-                <div className="inline-block px-4 py-2 bg-purple-100 text-purple-600 rounded-full font-bold mb-4">
+                <div className="inline-block px-3 py-1.5 bg-purple-100 text-purple-600 rounded-full font-bold text-xs mb-3">
                   Step 2
                 </div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-6">AI Analyzes & Routes</h2>
-                <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">AI Analyzes & Routes</h2>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                   Our advanced AI instantly analyzes your photo, identifies the issue type, assesses 
                   severity, and automatically routes it to the correct government department.
                 </p>
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {[
-                    { icon: <Brain className="w-6 h-6" />, text: 'AI identifies issue category (pothole, garbage, etc.)' },
-                    { icon: <BarChart className="w-6 h-6" />, text: 'Severity assessment (low, medium, high, critical)' },
-                    { icon: <Send className="w-6 h-6" />, text: 'Auto-routing to correct municipal department' }
+                    { icon: <Brain className="w-5 h-5" />, text: 'AI identifies issue category (pothole, garbage, etc.)' },
+                    { icon: <BarChart className="w-5 h-5" />, text: 'Severity assessment (low, medium, high, critical)' },
+                    { icon: <Send className="w-5 h-5" />, text: 'Auto-routing to correct municipal department' }
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 text-purple-600">
+                    <li key={index} className="flex items-start space-x-2 group cursor-pointer">
+                      <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 text-purple-600 group-hover:scale-110 transition-transform duration-300">
                         {item.icon}
                       </div>
-                      <span className="text-lg text-gray-700 mt-2">{item.text}</span>
+                      <span className="text-sm text-gray-700 mt-1.5 group-hover:text-purple-600 transition-colors">{item.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="md:order-1 bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl p-12 text-center">
-                <Brain className="w-32 h-32 mx-auto text-purple-600 mb-6" />
-                <div className="text-6xl mb-4">🤖</div>
-                <p className="text-2xl font-bold text-gray-800">AI Processing</p>
+              <div className="md:order-1 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+                <Brain className="w-24 h-24 mx-auto text-purple-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-lg font-bold text-gray-800 group-hover:text-purple-700 transition-colors">AI Processing</p>
               </div>
             </div>
           </div>
 
           {/* Step 3 */}
-          <div className="mb-12">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="mb-8">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-block px-4 py-2 bg-green-100 text-green-600 rounded-full font-bold mb-4">
+                <div className="inline-block px-3 py-1.5 bg-green-100 text-green-600 rounded-full font-bold text-xs mb-3">
                   Step 3
                 </div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-6">Track & Get Resolved</h2>
-                <p className="text-xl text-gray-600 mb-6 leading-relaxed">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Track & Get Resolved</h2>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                   Monitor real-time status updates on your dashboard. Receive notifications as your 
                   issue progresses from 'Reported' to 'Resolved'.
                 </p>
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {[
-                    { icon: <Bell className="w-6 h-6" />, text: 'Real-time push notifications on status changes' },
-                    { icon: <BarChart className="w-6 h-6" />, text: 'View progress timeline and department actions' },
-                    { icon: <CheckCircle className="w-6 h-6" />, text: 'Verify resolution with before/after photos' }
+                    { icon: <Bell className="w-5 h-5" />, text: 'Real-time push notifications on status changes' },
+                    { icon: <BarChart className="w-5 h-5" />, text: 'View progress timeline and department actions' },
+                    { icon: <CheckCircle className="w-5 h-5" />, text: 'Verify resolution with before/after photos' }
                   ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 text-green-600">
+                    <li key={index} className="flex items-start space-x-2 group cursor-pointer">
+                      <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 text-green-600 group-hover:scale-110 transition-transform duration-300">
                         {item.icon}
                       </div>
-                      <span className="text-lg text-gray-700 mt-2">{item.text}</span>
+                      <span className="text-sm text-gray-700 mt-1.5 group-hover:text-green-600 transition-colors">{item.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-3xl p-12 text-center">
-                <CheckCircle className="w-32 h-32 mx-auto text-green-600 mb-6" />
-                <div className="text-6xl mb-4">✅</div>
-                <p className="text-2xl font-bold text-gray-800">Issue Resolved</p>
+              <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+                <CheckCircle className="w-24 h-24 mx-auto text-green-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                <p className="text-lg font-bold text-gray-800 group-hover:text-green-700 transition-colors">Issue Resolved</p>
               </div>
             </div>
           </div>
@@ -133,14 +135,14 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Status Lifecycle */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Issue Status Lifecycle</h2>
-            <p className="text-xl text-gray-600">Track your report through every stage</p>
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Issue Status Lifecycle</h2>
+            <p className="text-base text-gray-600">Track your report through every stage</p>
           </div>
 
-          <div className="grid md:grid-cols-5 gap-6">
+          <div className="grid md:grid-cols-5 gap-4">
             {[
               { status: 'Reported', color: 'bg-blue-500', icon: '📝' },
               { status: 'Verified', color: 'bg-indigo-500', icon: '✓' },
@@ -149,14 +151,14 @@ export default function HowItWorksPage() {
               { status: 'Resolved', color: 'bg-green-500', icon: '🎉' }
             ].map((stage, index) => (
               <div key={index} className="relative">
-                <div className="bg-white p-6 rounded-xl shadow-lg text-center">
-                  <div className={`w-16 h-16 ${stage.color} rounded-full flex items-center justify-center mx-auto mb-4 text-3xl`}>
+                <div className="bg-white p-4 rounded-lg shadow-md text-center">
+                  <div className={`w-12 h-12 ${stage.color} rounded-full flex items-center justify-center mx-auto mb-3 text-xl`}>
                     {stage.icon}
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">{stage.status}</h3>
+                  <h3 className="text-sm font-bold text-gray-900">{stage.status}</h3>
                 </div>
                 {index < 4 && (
-                  <div className="hidden md:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-400 text-2xl">
+                  <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 text-gray-400 text-lg">
                     →
                   </div>
                 )}
@@ -167,7 +169,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Video Demo Section */}
-      <section className="py-20">
+      <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">See It In Action</h2>
           <p className="text-xl text-gray-600 mb-10">Watch how easy it is to report and track civic issues</p>
@@ -181,7 +183,7 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+      <section className="py-16 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
           <p className="text-xl mb-10 opacity-90">

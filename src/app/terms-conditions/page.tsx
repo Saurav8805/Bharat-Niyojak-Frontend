@@ -6,7 +6,7 @@ import { FileText, AlertCircle, Scale, UserCheck } from 'lucide-react';
 
 export default function TermsConditionsPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative">
       <Navbar />
 
       {/* Hero Section */}
