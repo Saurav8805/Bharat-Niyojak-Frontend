@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { ArrowRight, Check, Zap, Shield, TrendingUp, Users, MapPin, Clock, Camera, Bot, CheckCircle, Wrench, Trash2, Lightbulb, Droplet, TreeDeciduous, CircleAlert, TrafficCone, Construction } from 'lucide-react';
@@ -16,7 +17,20 @@ export default function HomePage() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100 rounded-full blur-3xl opacity-20 -z-10"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-200 rounded-full blur-3xl opacity-15 -z-10"></div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* India Flag Background - Very Faint Behind Title */}
+        <div className="absolute inset-0 flex items-start justify-center pointer-events-none" style={{ zIndex: 0, paddingTop: '40px' }}>
+          <Image
+            src="/logo2.png"
+            alt="India Flag Background"
+            width={600}
+            height={400}
+            className="object-contain"
+            style={{ opacity: 0.18 }}
+            priority
+          />
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
             <div className="inline-flex items-center px-3 py-1.5 bg-primary-100 rounded-full text-primary-700 text-xs font-semibold mb-4">
               <Zap className="w-3 h-3 mr-1.5" />
