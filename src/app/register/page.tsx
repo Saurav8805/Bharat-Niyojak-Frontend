@@ -13,7 +13,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
-    mobile: '',
+    phone_number: '',
     password: '',
     confirmPassword: ''
   });
@@ -42,7 +42,7 @@ export default function RegisterPage() {
       return;
     }
 
-    if (formData.mobile.length !== 10) {
+    if (formData.phone_number.length !== 10) {
       setError('Mobile number must be 10 digits');
       return;
     }
@@ -53,7 +53,7 @@ export default function RegisterPage() {
       const response = await axios.post(`${API_URL}/auth/register`, {
         full_name: formData.full_name,
         email: formData.email,
-        mobile: formData.mobile,
+        phone_number: formData.phone_number,
         password: formData.password,
         role: 'citizen' // Default role
       });
@@ -134,18 +134,18 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Mobile */}
+            {/* Phone Number */}
             <div>
-              <label htmlFor="mobile" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="phone_number" className="block text-sm font-semibold text-gray-700 mb-2">
                 Mobile Number
               </label>
               <input
-                id="mobile"
-                name="mobile"
+                id="phone_number"
+                name="phone_number"
                 type="tel"
                 required
                 maxLength={10}
-                value={formData.mobile}
+                value={formData.phone_number}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 placeholder="10-digit mobile number"

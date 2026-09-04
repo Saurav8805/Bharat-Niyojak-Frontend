@@ -20,30 +20,185 @@ import {
   Activity
 } from 'lucide-react';
 
+interface DashboardStats {
+  total_issues: number;
+  pending_issues: number;
+  in_progress_issues: number;
+  resolved_issues: number;
+  rejected_issues: number;
+  total_citizens: number;
+  total_admins: number;
+  issues_today: number;
+  resolved_today: number;
+}
+
+interface Issue {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  city: string;
+  created_at: string;
+  department: string;
+}
+
+interface AdminProfile {
+  id: string;
+  full_name: string;
+  email: string;
+  role: 'admin';
+  department: 'electric' | 'road' | 'water' | 'forest';
+  is_active: boolean;
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [adminName, setAdminName] = useState('');
+  const [admin, setAdmin] = useState<AdminProfile | null>(null);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentIssues, setRecentIssues] = useState<Issue[]>([]);
 
   useEffect(() => {
-    // Check authentication
-    const isAuthenticated = localStorage.getItem('adminAuth');
-    const username = localStorage.getItem('adminUsername');
-    
-    if (!isAuthenticated || isAuthenticated !== 'true') {
-      router.push('/admin/login');
-      return;
-    }
-    
-    setAdminName(username || 'Admin');
-    setLoading(false);
-  }, [router]);
+    checkAuthAndLoadData();
+  }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
-    localStorage.removeItem('adminUsername');
-    localStorage.removeItem('adminLoginTime');
-    router.push('/admin/login');
+  const checkAuthAndLoadData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      
+      if (!token || !userStr) {
+        router.push('/login');
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      
+      if (user.role !== 'admin') {
+        router.push('/login');
+        return;
+      }
+
+      setAdmin(user);
+      await loadDashboardStats(user);
+      await loadRecentIssues(user);
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      router.push('/login');
+    }
+  };
+
+  const loadDashboardStats = async (profile: AdminProfile) => {
+    try {
+      // For now, we can fetch basic stats
+      // You can expand this to use the admin stats endpoint
+      const statsData: DashboardStats = {
+        total_issues: 0,
+        pending_issues: 0,
+        in_progress_issues: 0,
+        resolved_issues: 0,
+        rejected_issues: 0,
+        total_citizens: 0,
+        total_admins: 0,
+        issues_today: 0,
+        resolved_today: 0
+      };
+      setStats(statsData);
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    }
+  };
+
+  const loadRecentIssues = async (profile: AdminProfile) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/issues/admin/department?department=${profile.department}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const issues = data.data.issues || [];
+          setRecentIssues(issues.slice(0, 10)); // Show latest 10
+          
+          // Calculate stats from issues
+          setStats({
+            total_issues: issues.length,
+            pending_issues: issues.filter((i: Issue) => i.status === 'pending').length,
+            in_progress_issues: issues.filter((i: Issue) => i.status === 'in_progress').length,
+            resolved_issues: issues.filter((i: Issue) => i.status === 'resolved').length,
+            rejected_issues: issues.filter((i: Issue) => i.status === 'rejected').length,
+            total_citizens: 0,
+            total_admins: 0,
+            issues_today: issues.filter((i: Issue) => 
+              new Date(i.created_at).toDateString() === new Date().toDateString()
+            ).length,
+            resolved_today: issues.filter((i: Issue) => 
+              i.status === 'resolved' && 
+              new Date(i.created_at).toDateString() === new Date().toDateString()
+            ).length
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load issues:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Clear all stored data
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('adminAuth');
+      localStorage.removeItem('adminRole');
+      localStorage.removeItem('adminDepartment');
+      localStorage.removeItem('adminEmail');
+      
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const getDepartmentDisplayName = (dept: string) => {
+    const names: Record<string, string> = {
+      electric: '⚡ Electricity',
+      road: '🛣️ Road',
+      water: '💧 Water',
+      forest: '🌳 Forest'
+    };
+    return names[dept] || dept;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'resolved': return 'bg-green-100 text-green-800 border-green-200';
+      case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'text-red-600 bg-red-50';
+      case 'high': return 'text-orange-600 bg-orange-50';
+      case 'medium': return 'text-yellow-600 bg-yellow-50';
+      case 'low': return 'text-green-600 bg-green-50';
+      default: return 'text-gray-600 bg-gray-50';
+    }
   };
 
   if (loading) {
@@ -57,11 +212,10 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // Mock data
-  const stats = [
+  const statsCards = [
     {
-      title: 'Total Issues Reported',
-      value: '1,284',
+      title: 'Total Issues',
+      value: stats?.total_issues || 0,
       change: '+12.5%',
       trend: 'up',
       icon: FileText,
@@ -70,18 +224,8 @@ export default function AdminDashboardPage() {
       textColor: 'text-blue-600'
     },
     {
-      title: 'Active Users',
-      value: '8,549',
-      change: '+8.2%',
-      trend: 'up',
-      icon: Users,
-      color: 'bg-green-500',
-      lightColor: 'bg-green-100',
-      textColor: 'text-green-600'
-    },
-    {
       title: 'Pending Issues',
-      value: '143',
+      value: stats?.pending_issues || 0,
       change: '-3.1%',
       trend: 'down',
       icon: Clock,
@@ -90,43 +234,26 @@ export default function AdminDashboardPage() {
       textColor: 'text-yellow-600'
     },
     {
-      title: 'Resolved Today',
-      value: '87',
-      change: '+15.3%',
+      title: 'In Progress',
+      value: stats?.in_progress_issues || 0,
+      change: '+8.2%',
       trend: 'up',
-      icon: CheckCircle,
+      icon: Activity,
       color: 'bg-purple-500',
       lightColor: 'bg-purple-100',
       textColor: 'text-purple-600'
+    },
+    {
+      title: 'Resolved',
+      value: stats?.resolved_issues || 0,
+      change: '+15.3%',
+      trend: 'up',
+      icon: CheckCircle,
+      color: 'bg-green-500',
+      lightColor: 'bg-green-100',
+      textColor: 'text-green-600'
     }
   ];
-
-  const recentIssues = [
-    { id: 1, title: 'Pothole on MG Road', status: 'Pending', priority: 'High', location: 'Bangalore', time: '10 mins ago' },
-    { id: 2, title: 'Garbage overflow near Park', status: 'In Progress', priority: 'Medium', location: 'Delhi', time: '25 mins ago' },
-    { id: 3, title: 'Broken streetlight', status: 'Resolved', priority: 'Low', location: 'Mumbai', time: '1 hour ago' },
-    { id: 4, title: 'Water leakage on 5th Ave', status: 'Pending', priority: 'Critical', location: 'Pune', time: '2 hours ago' },
-    { id: 5, title: 'Damaged road sign', status: 'In Progress', priority: 'Medium', location: 'Chennai', time: '3 hours ago' }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'In Progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Resolved': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'Critical': return 'text-red-600 bg-red-50';
-      case 'High': return 'text-orange-600 bg-orange-50';
-      case 'Medium': return 'text-yellow-600 bg-yellow-50';
-      case 'Low': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -141,7 +268,9 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <h1 className="text-lg font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-xs text-gray-500">Bharat Niyojak</p>
+                <p className="text-xs text-gray-500">
+                  {admin?.department ? getDepartmentDisplayName(admin.department) : 'Department'}
+                </p>
               </div>
             </div>
 
@@ -158,8 +287,8 @@ export default function AdminDashboardPage() {
 
               <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">{adminName}</p>
-                  <p className="text-xs text-gray-500">Super Admin</p>
+                  <p className="text-sm font-semibold text-gray-900">{admin?.full_name}</p>
+                  <p className="text-xs text-gray-500 capitalize">{admin?.role}</p>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -180,7 +309,7 @@ export default function AdminDashboardPage() {
         <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 mb-8 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome back, {adminName}! 👋</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">Welcome back, {admin?.full_name}! 👋</h2>
               <p className="text-primary-100">Here's what's happening with your platform today.</p>
             </div>
             <Activity className="w-16 h-16 text-white opacity-20" />
@@ -189,7 +318,7 @@ export default function AdminDashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
+          {statsCards.map((stat, index) => (
             <div
               key={index}
               className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
@@ -223,56 +352,65 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="space-y-4">
-                {recentIssues.map((issue) => (
-                  <div
-                    key={issue.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer group"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                          {issue.title}
-                        </h4>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${getStatusColor(issue.status)}`}>
-                          {issue.status}
-                        </span>
+                {recentIssues.length > 0 ? (
+                  recentIssues.map((issue) => (
+                    <div
+                      key={issue.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer group"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h4 className="font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                            {issue.title}
+                          </h4>
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${getStatusColor(issue.status)}`}>
+                            {issue.status}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                          <span className="flex items-center space-x-1">
+                            <MapPin className="w-3 h-3" />
+                            <span>{issue.city || 'Unknown'}</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{new Date(issue.created_at).toLocaleDateString()}</span>
+                          </span>
+                          {issue.department && (
+                            <span className="capitalize">
+                              {getDepartmentDisplayName(issue.department)}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
-                        <span className="flex items-center space-x-1">
-                          <MapPin className="w-3 h-3" />
-                          <span>{issue.location}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{issue.time}</span>
-                        </span>
-                      </div>
+                      <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getPriorityColor(issue.priority)}`}>
+                        {issue.priority}
+                      </span>
                     </div>
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${getPriorityColor(issue.priority)}`}>
-                      {issue.priority}
-                    </span>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 py-8">No issues found</p>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions & System Status */}
           <div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full px-4 py-3 bg-primary-50 text-primary-600 rounded-lg font-semibold hover:bg-primary-100 transition-all text-sm flex items-center justify-between group">
-                  <span>Manage Users</span>
-                  <Users className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <button 
+                  onClick={() => router.push('/admin/issues')}
+                  className="w-full px-4 py-3 bg-primary-50 text-primary-600 rounded-lg font-semibold hover:bg-primary-100 transition-all text-sm flex items-center justify-between group"
+                >
+                  <span>View All Issues</span>
+                  <FileText className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="w-full px-4 py-3 bg-green-50 text-green-600 rounded-lg font-semibold hover:bg-green-100 transition-all text-sm flex items-center justify-between group">
+                
+                <button className="w-full px-4 py-3 bg-purple-50 text-purple-600 rounded-lg font-semibold hover:bg-purple-100 transition-all text-sm flex items-center justify-between group">
                   <span>View Reports</span>
                   <BarChart3 className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button className="w-full px-4 py-3 bg-purple-50 text-purple-600 rounded-lg font-semibold hover:bg-purple-100 transition-all text-sm flex items-center justify-between group">
-                  <span>System Settings</span>
-                  <Settings className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             </div>
@@ -282,13 +420,6 @@ export default function AdminDashboardPage() {
               <h3 className="text-lg font-bold text-gray-900 mb-4">System Status</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Server Status</span>
-                  <span className="flex items-center space-x-2 text-sm font-semibold text-green-600">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <span>Online</span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Database</span>
                   <span className="flex items-center space-x-2 text-sm font-semibold text-green-600">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -296,10 +427,17 @@ export default function AdminDashboardPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">AI Service</span>
+                  <span className="text-sm text-gray-600">API</span>
                   <span className="flex items-center space-x-2 text-sm font-semibold text-green-600">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                     <span>Active</span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">AI Service</span>
+                  <span className="flex items-center space-x-2 text-sm font-semibold text-green-600">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span>Running</span>
                   </span>
                 </div>
               </div>
