@@ -83,8 +83,7 @@ export default function MyIssuesPage() {
   };
 
   const filteredIssues = issues.filter(issue => {
-    const matchesFilter = filter === 'all' || issue.status === filter || 
-      (filter === 'in_progress' && (issue.status === 'assigned' || issue.status === 'in_progress'));
+    const matchesFilter = filter === 'all' || issue.status === filter;
     
     const matchesSearch = searchQuery === '' || 
       issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -102,7 +101,6 @@ export default function MyIssuesPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         );
-      case 'assigned':
       case 'in_progress':
         return (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +205,7 @@ export default function MyIssuesPage() {
           <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-purple-500">
             <p className="text-sm text-gray-600">In Progress</p>
             <p className="text-2xl font-bold text-purple-600">
-              {issues.filter(i => i.status === 'assigned' || i.status === 'in_progress').length}
+              {issues.filter(i => i.status === 'in_progress').length}
             </p>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-4 border-l-4 border-green-500">
