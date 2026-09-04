@@ -99,6 +99,7 @@ export default function AdminDashboardPage() {
         pending_issues: 0,
         in_progress_issues: 0,
         resolved_issues: 0,
+        rejected_issues: 0,
         total_citizens: 0,
         total_admins: 0,
         issues_today: 0,
