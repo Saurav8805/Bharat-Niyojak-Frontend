@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import axios from 'axios';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 interface User {
   id: string;
@@ -12,10 +15,27 @@ interface User {
   role: string;
 }
 
+interface Issue {
+  id: string;
+  title: string;
+  status: string;
+  priority: string;
+  department: string;
+  reported_at: string;
+}
+
 export default function CitizenDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    in_progress: 0,
+    resolved: 0,
+    rejected: 0
+  });
 
   useEffect(() => {
     // Check authentication
@@ -40,14 +60,43 @@ export default function CitizenDashboard() {
     }
 
     try {
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      fetchIssues();
     } catch (error) {
       console.error('Error parsing user data:', error);
       router.push('/login');
+    }
+  }, [router]);
+
+  const fetchIssues = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/issues/my-issues`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        const issuesData = response.data.data.issues || [];
+        setIssues(issuesData);
+        
+        // Calculate stats
+        setStats({
+          total: issuesData.length,
+          pending: issuesData.filter((i: Issue) => i.status === 'pending').length,
+          in_progress: issuesData.filter((i: Issue) => i.status === 'in_progress').length,
+          resolved: issuesData.filter((i: Issue) => i.status === 'resolved').length,
+          rejected: issuesData.filter((i: Issue) => i.status === 'rejected').length
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching issues:', error);
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -188,25 +237,11 @@ export default function CitizenDashboard() {
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total Issues</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="text-sm text-gray-600 mb-1">Pending</p>
-                <p className="text-2xl font-bold text-orange-600">0</p>
+                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -217,7 +252,7 @@ export default function CitizenDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">In Progress</p>
-                <p className="text-2xl font-bold text-blue-600">0</p>
+                <p className="text-2xl font-bold text-blue-600">{stats.in_progress}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,11 +266,25 @@ export default function CitizenDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Resolved</p>
-                <p className="text-2xl font-bold text-green-600">0</p>
+                <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Rejected</p>
+                <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+              </div>
+              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
             </div>

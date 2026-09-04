@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
+import { formatDateTime, formatRelativeTime } from '@/lib/dateUtils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -14,7 +15,7 @@ interface Issue {
   ai_description: string;
   category: string;
   department: 'electric' | 'road' | 'water' | 'forest';
-  status: 'pending' | 'assigned' | 'in_progress' | 'resolved' | 'rejected' | 'closed';
+  status: 'pending' | 'in_progress' | 'resolved' | 'rejected';
   priority: 'low' | 'medium' | 'high' | 'critical';
   images: string[];
   address: string;
@@ -26,11 +27,9 @@ interface Issue {
 
 const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  assigned: 'bg-blue-100 text-blue-800 border-blue-200',
-  in_progress: 'bg-purple-100 text-purple-800 border-purple-200',
+  in_progress: 'bg-blue-100 text-blue-800 border-blue-200',
   resolved: 'bg-green-100 text-green-800 border-green-200',
-  rejected: 'bg-red-100 text-red-800 border-red-200',
-  closed: 'bg-gray-100 text-gray-800 border-gray-200'
+  rejected: 'bg-red-100 text-red-800 border-red-200'
 };
 
 const PRIORITY_COLORS = {
@@ -347,7 +346,7 @@ export default function MyIssuesPage() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <span>{getTimeSince(issue.reported_at)}</span>
+                          <span>{formatRelativeTime(issue.reported_at)}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

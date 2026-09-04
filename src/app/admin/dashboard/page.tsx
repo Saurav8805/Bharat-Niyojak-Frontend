@@ -25,6 +25,7 @@ interface DashboardStats {
   pending_issues: number;
   in_progress_issues: number;
   resolved_issues: number;
+  rejected_issues: number;
   total_citizens: number;
   total_admins: number;
   issues_today: number;
@@ -111,9 +112,41 @@ export default function AdminDashboardPage() {
 
   const loadRecentIssues = async (profile: AdminProfile) => {
     try {
-      // Filter by department - admin only sees their department's issues
-      // This would connect to your backend API
-      setRecentIssues([]);
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/issues/admin/department?department=${profile.department}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const issues = data.data.issues || [];
+          setRecentIssues(issues.slice(0, 10)); // Show latest 10
+          
+          // Calculate stats from issues
+          setStats({
+            total_issues: issues.length,
+            pending_issues: issues.filter((i: Issue) => i.status === 'pending').length,
+            in_progress_issues: issues.filter((i: Issue) => i.status === 'in_progress').length,
+            resolved_issues: issues.filter((i: Issue) => i.status === 'resolved').length,
+            rejected_issues: issues.filter((i: Issue) => i.status === 'rejected').length,
+            total_citizens: 0,
+            total_admins: 0,
+            issues_today: issues.filter((i: Issue) => 
+              new Date(i.created_at).toDateString() === new Date().toDateString()
+            ).length,
+            resolved_today: issues.filter((i: Issue) => 
+              i.status === 'resolved' && 
+              new Date(i.created_at).toDateString() === new Date().toDateString()
+            ).length
+          });
+        }
+      }
     } catch (error) {
       console.error('Failed to load issues:', error);
     }

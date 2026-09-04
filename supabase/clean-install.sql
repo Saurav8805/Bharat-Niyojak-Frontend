@@ -34,7 +34,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TYPE user_role AS ENUM ('citizen', 'admin');
 CREATE TYPE department_type AS ENUM ('electric', 'road', 'water', 'forest');
-CREATE TYPE issue_status AS ENUM ('pending', 'assigned', 'in_progress', 'resolved', 'rejected', 'closed');
+CREATE TYPE issue_status AS ENUM ('pending', 'in_progress', 'resolved', 'rejected');
 CREATE TYPE issue_priority AS ENUM ('low', 'medium', 'high', 'critical');
 
 -- ================================================
@@ -87,6 +87,7 @@ CREATE TABLE public.issues (
   citizen_id UUID REFERENCES public.users(id) NOT NULL,
   title VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
+  ai_description TEXT,
   category VARCHAR(100) NOT NULL,
   status issue_status DEFAULT 'pending' NOT NULL,
   priority issue_priority DEFAULT 'medium' NOT NULL,
@@ -102,6 +103,8 @@ CREATE TABLE public.issues (
   ai_category VARCHAR(100),
   ai_confidence DECIMAL(5, 2),
   ai_severity VARCHAR(50),
+  is_duplicate BOOLEAN DEFAULT false,
+  duplicate_of UUID REFERENCES public.issues(id),
   reported_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   assigned_at TIMESTAMP WITH TIME ZONE,
   resolved_at TIMESTAMP WITH TIME ZONE,

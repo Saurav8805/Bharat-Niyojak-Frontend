@@ -221,7 +221,14 @@ export default function ReportIssuePage() {
       }
     } catch (err: any) {
       console.error('Report error:', err);
-      setError(err.response?.data?.message || 'Failed to report issue. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Failed to report issue. Please try again.';
+      const errorDetails = err.response?.data?.details;
+      
+      if (errorDetails) {
+        setError(`${errorMessage}\n\n${errorDetails}`);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
       setAnalyzing(false);
