@@ -1,73 +1,130 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { User, UserRole } from '@/types';
+/**
+ * Authentication utilities for persistent login
+ */
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Hash password
-export async function hashPassword(password: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(password, salt);
+export interface UserData {
+  id: string;
+  email: string;
+  full_name: string;
+  role: 'citizen' | 'admin';
+  department?: 'electric' | 'road' | 'water' | 'forest';
+  is_active: boolean;
 }
 
-// Verify password
-export async function verifyPassword(
-  password: string,
-  hashedPassword: string
-): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: UserData | null;
+  token: string | null;
 }
 
-// Generate JWT token
-export function generateToken(user: User): string {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    },
-    JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-}
-
-// Verify JWT token
-export function verifyToken(token: string): any {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return null;
+/**
+ * Get authentication state from localStorage
+ */
+export const getAuthState = (): AuthState => {
+  if (typeof window === 'undefined') {
+    return { isAuthenticated: false, user: null, token: null };
   }
-}
 
-// Check if user has required role
-export function hasRole(userRole: UserRole, requiredRoles: UserRole[]): boolean {
-  return requiredRoles.includes(userRole);
-}
+  try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
 
-// Check if user is admin
-export function isAdmin(userRole: UserRole): boolean {
-  return [
-    'road_admin',
-    'water_admin',
-    'electricity_admin',
-    'forest_admin',
-    'super_admin',
-  ].includes(userRole);
-}
+    if (!token || !userStr) {
+      return { isAuthenticated: false, user: null, token: null };
+    }
 
-// Check if user is super admin
-export function isSuperAdmin(userRole: UserRole): boolean {
-  return userRole === 'super_admin';
-}
+    const user = JSON.parse(userStr);
 
-// Get department admin role for category
-export function getDepartmentAdminRole(department: string): UserRole | null {
-  const mapping: Record<string, UserRole> = {
-    'Public Works Department': 'road_admin',
-    'Water Supply Department': 'water_admin',
-    'Electrical Department': 'electricity_admin',
-    'Forest Department': 'forest_admin',
-  };
-  return mapping[department] || null;
-}
+    // Check if token is expired (optional - if your backend sends expiry)
+    const loginTime = localStorage.getItem('loginTime');
+    if (loginTime) {
+      const hoursSinceLogin = (Date.now() - parseInt(loginTime)) / (1000 * 60 * 60);
+      // Auto-logout after 7 days
+      if (hoursSinceLogin > 168) {
+        clearAuthState();
+        return { isAuthenticated: false, user: null, token: null };
+      }
+    }
+
+    return {
+      isAuthenticated: true,
+      user,
+      token
+    };
+  } catch (error) {
+    console.error('Error reading auth state:', error);
+    return { isAuthenticated: false, user: null, token: null };
+  }
+};
+
+/**
+ * Save authentication state to localStorage
+ */
+export const setAuthState = (user: UserData, token: string): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('userRole', user.role);
+    localStorage.setItem('userId', user.id);
+    localStorage.setItem('loginTime', Date.now().toString());
+
+    // Store admin-specific data
+    if (user.role === 'admin') {
+      localStorage.setItem('adminAuth', 'true');
+      localStorage.setItem('adminDepartment', user.department || '');
+      localStorage.setItem('adminEmail', user.email);
+    }
+  } catch (error) {
+    console.error('Error saving auth state:', error);
+  }
+};
+
+/**
+ * Clear authentication state from localStorage
+ */
+export const clearAuthState = (): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('loginTime');
+    localStorage.removeItem('adminAuth');
+    localStorage.removeItem('adminDepartment');
+    localStorage.removeItem('adminEmail');
+  } catch (error) {
+    console.error('Error clearing auth state:', error);
+  }
+};
+
+/**
+ * Check if user is authenticated
+ */
+export const isAuthenticated = (): boolean => {
+  return getAuthState().isAuthenticated;
+};
+
+/**
+ * Get current user
+ */
+export const getCurrentUser = (): UserData | null => {
+  return getAuthState().user;
+};
+
+/**
+ * Get auth token
+ */
+export const getAuthToken = (): string | null => {
+  return getAuthState().token;
+};
+
+/**
+ * Get redirect path based on user role
+ */
+export const getRedirectPath = (role: 'citizen' | 'admin'): string => {
+  return role === 'admin' ? '/admin/dashboard' : '/citizen/dashboard';
+};

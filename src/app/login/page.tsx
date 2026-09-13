@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import axios from 'axios';
 import { User, Lock, AlertCircle } from 'lucide-react';
+import { setAuthState, getRedirectPath } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -30,23 +31,12 @@ export default function LoginPage() {
       if (response.data.success) {
         const { user, token } = response.data.data;
         
-        // Store authentication data
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('userRole', user.role);
-        localStorage.setItem('userId', user.id);
+        // Store authentication data using utility function
+        setAuthState(user, token);
 
         // Route based on role
-        if (user.role === 'admin') {
-          // Store admin-specific data
-          localStorage.setItem('adminAuth', 'true');
-          localStorage.setItem('adminDepartment', user.department || '');
-          localStorage.setItem('adminEmail', user.email);
-          router.push('/admin/dashboard');
-        } else {
-          // Citizen
-          router.push('/citizen/dashboard');
-        }
+        const redirectPath = getRedirectPath(user.role);
+        router.push(redirectPath);
       } else {
         setError(response.data.message || 'Login failed');
       }
