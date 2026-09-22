@@ -6,7 +6,7 @@ export interface UserData {
   id: string;
   email: string;
   full_name: string;
-  role: 'citizen' | 'admin';
+  role: 'citizen' | 'admin' | 'super_admin' | 'road_admin' | 'water_admin' | 'electricity_admin' | 'forest_admin';
   department?: 'electric' | 'road' | 'water' | 'forest';
   is_active: boolean;
 }
@@ -71,7 +71,7 @@ export const setAuthState = (user: UserData, token: string): void => {
     localStorage.setItem('loginTime', Date.now().toString());
 
     // Store admin-specific data
-    if (user.role === 'admin') {
+    if (user.role.includes('admin')) {
       localStorage.setItem('adminAuth', 'true');
       localStorage.setItem('adminDepartment', user.department || '');
       localStorage.setItem('adminEmail', user.email);
@@ -125,6 +125,12 @@ export const getAuthToken = (): string | null => {
 /**
  * Get redirect path based on user role
  */
-export const getRedirectPath = (role: 'citizen' | 'admin'): string => {
-  return role === 'admin' ? '/admin/dashboard' : '/citizen/dashboard';
+export const getRedirectPath = (role: string): string => {
+  if (role === 'super_admin') {
+    return '/admin/super';
+  }
+  if (role.includes('admin')) {
+    return '/admin/dashboard';
+  }
+  return '/citizen/dashboard';
 };

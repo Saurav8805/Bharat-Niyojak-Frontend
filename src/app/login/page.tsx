@@ -3,10 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import axios from 'axios';
-import { User, Lock, AlertCircle } from 'lucide-react';
-import { setAuthState, getRedirectPath } from '@/lib/auth';
+import { User, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -14,6 +11,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,26 +21,38 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
-      if (response.data.success) {
-        const { user, token } = response.data.data;
-        
-        // Store authentication data using utility function
-        setAuthState(user, token);
+      const data = await response.json();
 
-        // Route based on role
-        const redirectPath = getRedirectPath(user.role);
-        router.push(redirectPath);
+      if (data.success) {
+        const { user, token } = data.data;
+        
+        // Store authentication data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        // Redirect based on role
+        if (user.role === 'super_admin') {
+          window.location.href = '/admin/super';
+        } else if (user.role && user.role.includes('_admin')) {
+          window.location.href = '/admin/dashboard';
+        } else if (user.role === 'citizen') {
+          window.location.href = '/citizen/dashboard';
+        } else {
+          window.location.href = '/';
+        }
       } else {
-        setError(response.data.message || 'Login failed');
+        setError(data.message || 'Login failed');
+        setLoading(false);
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password');
-    } finally {
+      console.error('Login error:', err);
+      setError('Invalid email or password');
       setLoading(false);
     }
   };
@@ -52,14 +62,14 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <Image 
+          <div className="flex justify-center mb-4">
+            <img 
               src="/logo.png" 
-              alt="Bharat Niyojak Logo" 
-              width={120} 
+              alt="Bharat Niyojak" 
+              width={120}
               height={120}
               className="object-contain"
-              priority
+              style={{ maxHeight: '120px', width: 'auto' }}
             />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
@@ -91,6 +101,7 @@ export default function LoginPage() {
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                   placeholder="your@email.com"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -104,13 +115,27 @@ export default function LoginPage() {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                   placeholder="Enter your password"
                   required
+                  disabled={loading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  tabIndex={-1}
+                  disabled={loading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -118,8 +143,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-lg shadow-md transition-all duration-300 transform hover:scale-105 ${
-                loading ? 'opacity-50 cursor-not-allowed' : 'hover:from-primary-600 hover:to-primary-700 hover:shadow-lg'
+              className={`w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-lg shadow-md transition-all duration-300 ${
+                loading ? 'opacity-50 cursor-not-allowed' : 'hover:from-primary-600 hover:to-primary-700 hover:shadow-lg transform hover:scale-105'
               }`}
             >
               {loading ? (
@@ -159,9 +184,9 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
             By signing in, you agree to our{' '}
-            <a href="#" className="text-primary-600 hover:underline">Terms of Service</a>
+            <Link href="/terms-conditions" className="text-primary-600 hover:underline">Terms of Service</Link>
             {' '}and{' '}
-            <a href="#" className="text-primary-600 hover:underline">Privacy Policy</a>
+            <Link href="/privacy-policy" className="text-primary-600 hover:underline">Privacy Policy</Link>
           </p>
         </div>
 

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,8 +43,9 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:flex items-center">
+          {/* Language Switcher & CTA Button */}
+          <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
             <Link
               href="/login"
               className="px-4 py-2 text-sm text-primary-600 font-semibold hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-all"
@@ -77,7 +79,10 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-2 border-t border-gray-200">
+              <div className="pt-2 border-t border-gray-200 space-y-2">
+                <div className="px-4">
+                  <LanguageSwitcher />
+                </div>
                 <Link
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}

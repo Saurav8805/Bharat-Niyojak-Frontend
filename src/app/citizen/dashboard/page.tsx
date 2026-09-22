@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+import DashboardHeader from '@/components/DashboardHeader';
+import Sidebar from '@/components/Sidebar';
+import { 
+  FileText, Clock, CheckCircle, AlertCircle, PlusCircle, MapPin, Calendar
+} from 'lucide-react';
 
 interface User {
   id: string;
@@ -15,95 +16,74 @@ interface User {
   role: string;
 }
 
-interface Issue {
+interface Complaint {
   id: string;
-  title: string;
+  category: string;
   status: string;
-  priority: string;
-  department: string;
-  reported_at: string;
+  address: string;
+  created_at: string;
+  department: any;
 }
 
 export default function CitizenDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [issues, setIssues] = useState<Issue[]>([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [myComplaints, setMyComplaints] = useState<Complaint[]>([]);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
     in_progress: 0,
-    resolved: 0,
-    rejected: 0
+    resolved: 0
   });
 
-  useEffect(() => {
-    // Check authentication
+  useEffect(() => { checkAuth(); }, []);
+
+  const checkAuth = () => {
     const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    const userRole = localStorage.getItem('userRole');
-
-    if (!token || !userData) {
-      router.push('/login');
-      return;
-    }
-
-    // Verify user is a citizen
-    if (userRole !== 'citizen') {
-      // Redirect based on role
-      if (userRole === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/login');
-      }
-      return;
-    }
-
+    const userStr = localStorage.getItem('user');
+    if (!token || !userStr) { router.push('/login'); return; }
     try {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      fetchIssues();
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      router.push('/login');
-    }
-  }, [router]);
-
-  const fetchIssues = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/issues/my-issues`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.data.success) {
-        const issuesData = response.data.data.issues || [];
-        setIssues(issuesData);
-        
-        // Calculate stats
-        setStats({
-          total: issuesData.length,
-          pending: issuesData.filter((i: Issue) => i.status === 'pending').length,
-          in_progress: issuesData.filter((i: Issue) => i.status === 'in_progress').length,
-          resolved: issuesData.filter((i: Issue) => i.status === 'resolved').length,
-          rejected: issuesData.filter((i: Issue) => i.status === 'rejected').length
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching issues:', error);
-    } finally {
-      setLoading(false);
-    }
+      const userData = JSON.parse(userStr);
+      if (userData.role !== 'citizen') { router.push('/login'); return; }
+      setUser(userData);
+      fetchMyComplaints();
+    } catch (error) { router.push('/login'); }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');
-    router.push('/');
+  const fetchMyComplaints = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      
+      const response = await fetch(`${API_URL}/complaints`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const complaints = data.data || [];
+          // Filter to show only user's complaints (backend should already do this)
+          const userComplaints = complaints.filter((c: any) => c.user_id === user?.id);
+          setMyComplaints(userComplaints);
+          
+          // Calculate stats
+          setStats({
+            total: userComplaints.length,
+            pending: userComplaints.filter((c: any) => c.status === 'pending').length,
+            in_progress: userComplaints.filter((c: any) => c.status === 'in_progress').length,
+            resolved: userComplaints.filter((c: any) => c.status === 'resolved').length
+          });
+        }
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error:', error);
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -114,201 +94,143 @@ export default function CitizenDashboard() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Citizen Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">Welcome back, {user.full_name}!</p>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar role="citizen" collapsed={sidebarCollapsed} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <DashboardHeader 
+          userName={user?.full_name || 'Citizen'}
+          userRole="Citizen"
+          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Welcome Banner */}
+            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 mb-8 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    Welcome, {user?.full_name}! 🌟
+                  </h2>
+                  <p className="text-green-100">Track and manage your complaints</p>
+                </div>
+                <FileText className="w-16 h-16 text-white opacity-20" />
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="text-sm text-gray-600 hover:text-gray-900 transition"
-              >
-                Home
-              </Link>
+
+            {/* Quick Action Button */}
+            <div className="mb-8">
               <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm font-medium"
+                onClick={() => router.push('/submit-complaint')}
+                className="w-full md:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-primary-600 text-white rounded-xl shadow-lg hover:bg-primary-700 hover:shadow-xl transition-all transform hover:scale-105"
               >
-                Logout
+                <PlusCircle className="w-6 h-6" />
+                <span className="font-semibold text-lg">Submit New Complaint</span>
               </button>
             </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Card */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-8 mb-8 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Welcome to Bharat Niyojak</h2>
-              <p className="text-blue-100 text-lg">
-                Your platform for reporting and tracking civic issues
-              </p>
+            {/* Statistics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+              <StatCard title="Total" value={stats.total} icon={FileText} color="bg-blue-500" />
+              <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-yellow-500" />
+              <StatCard title="In Progress" value={stats.in_progress} icon={AlertCircle} color="bg-orange-500" />
+              <StatCard title="Resolved" value={stats.resolved} icon={CheckCircle} color="bg-green-500" />
             </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
-              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          </div>
-        </div>
 
-        {/* User Info Card */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Full Name</p>
-              <p className="text-base font-medium text-gray-900">{user.full_name}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Email</p>
-              <p className="text-base font-medium text-gray-900">{user.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Phone Number</p>
-              <p className="text-base font-medium text-gray-900">{user.phone_number || 'Not provided'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Role</p>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                {user.role.toUpperCase()}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Submit Issue */}
-            <Link href="/citizen/issues/new" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer group">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+            {/* My Complaints */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900">My Complaints</h3>
+                <button 
+                  onClick={() => router.push('/my-complaints')}
+                  className="text-sm text-primary-600 hover:text-primary-700 font-semibold"
+                >
+                  View All →
+                </button>
               </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Submit New Issue</h4>
-              <p className="text-sm text-gray-600 mb-4">Report a civic issue in your area</p>
-              <span className="text-blue-600 text-sm font-medium">Report Now →</span>
-            </Link>
 
-            {/* View Issues */}
-            <Link href="/citizen/issues" className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer group">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-200 transition">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">My Issues</h4>
-              <p className="text-sm text-gray-600 mb-4">Track your submitted complaints</p>
-              <span className="text-green-600 text-sm font-medium">View All →</span>
-            </Link>
+              {myComplaints.length > 0 ? (
+                <div className="space-y-4">
+                  {myComplaints.slice(0, 5).map((complaint) => (
+                    <div key={complaint.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900 capitalize">
+                          {complaint.category}
+                        </span>
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusColor(complaint.status)}`}>
+                          {complaint.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-gray-600">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {complaint.address}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(complaint.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {complaint.department && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {complaint.department.department_name}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-lg font-medium text-gray-600 mb-2">No complaints yet</p>
+                  <p className="text-sm text-gray-500 mb-4">Submit your first complaint to get started</p>
+                  <button
+                    onClick={() => router.push('/submit-complaint')}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Submit Complaint</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
-            {/* Profile */}
-            <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer group">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 transition">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">My Profile</h4>
-              <p className="text-sm text-gray-600 mb-4">Update your information</p>
-              <span className="text-purple-600 text-sm font-medium">Coming Soon →</span>
+            {/* Tips Section */}
+            <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h4 className="font-semibold text-blue-900 mb-2">💡 Tips for Better Results</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Provide clear photos of the issue</li>
+                <li>• Include accurate location details</li>
+                <li>• Write a brief description of the problem</li>
+                <li>• Track your complaint status regularly</li>
+              </ul>
             </div>
           </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">In Progress</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.in_progress}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Resolved</p>
-                <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Rejected</p>
-                <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg className="w-6 h-6 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <h4 className="text-base font-semibold text-blue-900 mb-2">Welcome to Your Dashboard!</h4>
-              <p className="text-sm text-blue-800">
-                This is your citizen dashboard where you can submit issues, track their progress, and manage your profile. 
-                Additional features like issue submission and tracking are coming soon!
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
+}
+
+function StatCard({ title, value, icon: Icon, color }: any) {
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center mb-4`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
+      <p className="text-3xl font-bold text-gray-900">{value}</p>
+    </div>
+  );
+}
+
+function getStatusColor(status: string) {
+  const colors: any = {
+    pending: 'bg-yellow-100 text-yellow-700',
+    in_progress: 'bg-blue-100 text-blue-700',
+    resolved: 'bg-green-100 text-green-700',
+    rejected: 'bg-red-100 text-red-700',
+    submitted: 'bg-gray-100 text-gray-700',
+  };
+  return colors[status] || 'bg-gray-100 text-gray-700';
 }
