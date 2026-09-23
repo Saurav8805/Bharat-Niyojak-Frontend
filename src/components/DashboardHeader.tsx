@@ -30,18 +30,22 @@ export default function DashboardHeader({
             
             <div className="flex items-center gap-2">
               <img 
-                src="/LOGO-2.png" 
+                src="/logo.png" 
                 alt="Bharat Niyojak" 
-                className="h-7 sm:h-8 w-auto"
+                className="h-7 sm:h-8 w-auto object-contain"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  const fallback = e.currentTarget.nextElementSibling;
-                  if (fallback) fallback.classList.remove('hidden');
+                  if (e.currentTarget.src.includes('logo.png')) {
+                    e.currentTarget.src = '/logo2.png';
+                  }
                 }}
               />
-              <Shield className="w-7 h-7 text-primary-600 hidden" />
-              <div className="hidden sm:block">
-                <p className="text-xs font-medium text-gray-500">{userRole} Dashboard</p>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-xs sm:text-sm text-gray-900 tracking-tight">
+                  भारत नियोजक
+                </span>
+                <span className="hidden sm:inline-flex items-center text-[10px] sm:text-xs font-semibold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-200">
+                  {userRole}
+                </span>
               </div>
             </div>
           </div>

@@ -34,7 +34,25 @@ export default function DeptAdminDashboard() {
   });
   const [recentComplaints, setRecentComplaints] = useState<any[]>([]);
 
-  useEffect(() => { checkAuth(); }, []);
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarCollapsed(true);
+    } else {
+      const saved = localStorage.getItem('sidebar_collapsed');
+      if (saved !== null) setSidebarCollapsed(saved === 'true');
+    }
+    checkAuth();
+  }, []);
 
   const checkAuth = () => {
     const token = localStorage.getItem('token');
@@ -152,13 +170,18 @@ export default function DeptAdminDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar role={admin?.role as any} collapsed={sidebarCollapsed} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar
+        role={admin?.role as any}
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
+        onClose={() => setSidebarCollapsed(true)}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <DashboardHeader 
           userName={admin?.full_name || 'Admin'}
           userRole={getDepartmentDisplayName(admin)}
-          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onToggleSidebar={toggleSidebar}
         />
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-5">

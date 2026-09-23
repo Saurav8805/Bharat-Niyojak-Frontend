@@ -56,7 +56,23 @@ export default function AdminProfilePage() {
   const [form, setForm] = useState({ full_name: '', phone_number: '' });
   const [stats, setStats] = useState({ total: 0, pending: 0, in_progress: 0, resolved: 0, rejected: 0 });
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      }
+      return next;
+    });
+  };
+
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarCollapsed(true);
+    } else {
+      const saved = localStorage.getItem('sidebar_collapsed');
+      if (saved !== null) setSidebarCollapsed(saved === 'true');
+    }
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     if (!token || !userStr) { router.push('/login'); return; }
@@ -147,13 +163,18 @@ export default function AdminProfilePage() {
     : '—';
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar role={profile?.role || 'admin'} collapsed={sidebarCollapsed} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar
+        role={profile?.role || 'admin'}
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
+        onClose={() => setSidebarCollapsed(true)}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <DashboardHeader
           userName={profile?.full_name || 'Admin'}
           userRole="Admin"
-          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onToggleSidebar={toggleSidebar}
         />
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-5 space-y-4">

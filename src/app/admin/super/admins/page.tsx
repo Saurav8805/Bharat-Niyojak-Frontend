@@ -30,7 +30,23 @@ export default function ManageAdminsPage() {
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<User | null>(null);
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      }
+      return next;
+    });
+  };
+
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarCollapsed(true);
+    } else {
+      const saved = localStorage.getItem('sidebar_collapsed');
+      if (saved !== null) setSidebarCollapsed(saved === 'true');
+    }
     checkAuth();
   }, []);
 
@@ -153,13 +169,18 @@ export default function ManageAdminsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar role="super_admin" collapsed={sidebarCollapsed} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar
+        role="super_admin"
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
+        onClose={() => setSidebarCollapsed(true)}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <DashboardHeader
           userName="Super Administrator"
           userRole="Super Admin"
-          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onToggleSidebar={toggleSidebar}
         />
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-5">

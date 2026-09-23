@@ -82,9 +82,11 @@ export default function AdminIssuesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('sidebar_collapsed');
-    if (saved !== null) {
-      setSidebarCollapsed(saved === 'true');
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarCollapsed(true);
+    } else {
+      const saved = localStorage.getItem('sidebar_collapsed');
+      if (saved !== null) setSidebarCollapsed(saved === 'true');
     }
     checkAuthAndLoadData();
   }, []);
@@ -92,7 +94,9 @@ export default function AdminIssuesPage() {
   const toggleSidebar = () => {
     setSidebarCollapsed((prev) => {
       const next = !prev;
-      localStorage.setItem('sidebar_collapsed', String(next));
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      }
       return next;
     });
   };
@@ -223,9 +227,14 @@ export default function AdminIssuesPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar role={admin?.role || 'admin'} collapsed={sidebarCollapsed} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar
+        role={admin?.role || 'admin'}
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
+        onClose={() => setSidebarCollapsed(true)}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <DashboardHeader 
           userName={admin?.full_name || 'Admin'}
           userRole="Department Admin"
