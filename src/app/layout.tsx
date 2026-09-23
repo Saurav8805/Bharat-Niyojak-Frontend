@@ -1,7 +1,14 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import AuthProvider from '@/components/AuthProvider'
 import GoogleTranslate from '@/components/GoogleTranslate'
 import './globals.css'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#2563eb',
+}
 
 export const metadata: Metadata = {
   title: 'Bharat Niyojak - AI-Powered Civic Issue Reporting',
@@ -18,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
         <style dangerouslySetInnerHTML={{
           __html: `
             /* Hide all Google Translate feedback popups */

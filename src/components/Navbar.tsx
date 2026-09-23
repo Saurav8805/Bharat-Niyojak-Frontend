@@ -22,12 +22,18 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-3 sm:px-6">
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center gap-2">
             <img 
               src="/logo.png" 
               alt="Bharat Niyojak Logo" 
               className="h-8 sm:h-9 w-auto object-contain"
+              onError={(e) => {
+                e.currentTarget.src = '/logo2.png';
+              }}
             />
+            <span className="font-bold text-sm sm:text-base text-gray-900 tracking-tight">
+              भारत नियोजक
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -55,38 +61,37 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-1.5">
+            <LanguageSwitcher />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-1.5 text-gray-700 hover:bg-gray-100 rounded-md"
+              className="p-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              aria-label="Toggle Navigation Menu"
             >
-              {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-2.5 border-t border-gray-200 bg-white">
+          <div className="md:hidden py-3 border-t border-gray-200 bg-white">
             <div className="flex flex-col space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="px-3 py-1.5 text-xs text-gray-700 hover:text-primary-700 hover:bg-primary-50 rounded-md font-medium transition-all"
+                  className="px-3 py-2 text-sm text-gray-700 hover:text-primary-700 hover:bg-primary-50 rounded-md font-medium transition-all"
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-2 border-t border-gray-200 space-y-2">
-                <div className="px-3">
-                  <LanguageSwitcher />
-                </div>
+              <div className="pt-2.5 border-t border-gray-200 space-y-2">
                 <Link
                   href="/login"
                   onClick={() => setIsMenuOpen(false)}
-                  className="block w-full px-3 py-1.5 text-center text-xs text-primary-700 font-semibold border border-primary-300 rounded-md hover:bg-primary-50 transition-all"
+                  className="block w-full px-3 py-2 text-center text-sm text-primary-700 font-semibold border border-primary-300 rounded-md hover:bg-primary-50 transition-all shadow-xs"
                 >
                   Login
                 </Link>

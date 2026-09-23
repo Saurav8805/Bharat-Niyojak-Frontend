@@ -12,37 +12,25 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50 min-h-[85vh] sm:min-h-[88vh] lg:min-h-[92vh] flex flex-col justify-center pt-14 sm:pt-20 md:pt-24 pb-16 sm:pb-20 md:pb-24">
-        {/* Civic Issues Background Image - 20% Opacity */}
-        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-          <Image
-            src="/CivicIssues.png"
-            alt="Civic Issues Background"
-            fill
-            className="object-cover object-center"
-            style={{ opacity: 0.2 }}
-            priority
-          />
-        </div>
-
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-primary-50 pt-14 sm:pt-16 pb-16 sm:pb-20">
         {/* Decorative Elements */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100 rounded-full blur-3xl opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-200 rounded-full blur-3xl opacity-15 pointer-events-none"></div>
         
         {/* India Flag Background - Behind Title */}
-        <div className="absolute inset-0 flex items-start justify-center pointer-events-none" style={{ zIndex: 1, paddingTop: '30px' }}>
+        <div className="absolute inset-0 flex items-start justify-center pointer-events-none" style={{ zIndex: 0, paddingTop: '28px' }}>
           <Image
             src="/logo2.png"
             alt="India Flag Background"
             width={500}
             height={320}
             className="object-contain"
-            style={{ opacity: 0.5 }}
+            style={{ opacity: 0.35 }}
             priority
           />
         </div>
         
-        <div className="max-w-6xl mx-auto px-3 sm:px-6 relative z-10 w-full my-auto">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 relative z-10 w-full">
           <div className="text-center">
             <div className="inline-flex items-center px-2.5 py-1 bg-primary-100/80 rounded-full text-primary-700 text-[11px] font-semibold mb-3">
               <Zap className="w-3 h-3 mr-1" />

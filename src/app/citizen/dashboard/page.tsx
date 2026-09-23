@@ -59,9 +59,13 @@ export default function CitizenDashboard() {
   });
 
   useEffect(() => { 
-    const saved = localStorage.getItem('sidebar_collapsed');
-    if (saved !== null) {
-      setSidebarCollapsed(saved === 'true');
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarCollapsed(true);
+    } else {
+      const saved = localStorage.getItem('sidebar_collapsed');
+      if (saved !== null) {
+        setSidebarCollapsed(saved === 'true');
+      }
     }
     checkAuth(); 
   }, []);
@@ -69,7 +73,9 @@ export default function CitizenDashboard() {
   const toggleSidebar = () => {
     setSidebarCollapsed((prev) => {
       const next = !prev;
-      localStorage.setItem('sidebar_collapsed', String(next));
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      }
       return next;
     });
   };
@@ -133,9 +139,14 @@ export default function CitizenDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar role="citizen" collapsed={sidebarCollapsed} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar 
+        role="citizen" 
+        collapsed={sidebarCollapsed} 
+        onToggle={toggleSidebar}
+        onClose={() => setSidebarCollapsed(true)}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <DashboardHeader 
           userName={user?.full_name || 'Citizen'}
           userRole="Citizen"

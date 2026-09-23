@@ -10,12 +10,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
           {/* Brand Section */}
           <div className="space-y-2.5">
-            <div className="flex items-center">
-              <img 
-                src="/logo.png" 
-                alt="Bharat Niyojak Logo" 
-                className="h-8 w-auto object-contain"
-              />
+            <div className="flex items-center gap-2">
+              <div className="bg-white/95 px-2 py-1 rounded-md inline-flex items-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Bharat Niyojak Logo" 
+                  className="h-7 w-auto object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = '/logo2.png';
+                  }}
+                />
+              </div>
+              <span className="font-bold text-sm sm:text-base text-white tracking-tight">
+                भारत नियोजक
+              </span>
             </div>
             <p className="text-gray-400 text-xs leading-relaxed">
               AI-Powered Civic Issue Reporting System. Making India cleaner, safer, and smarter.
