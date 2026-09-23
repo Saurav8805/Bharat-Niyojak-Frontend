@@ -120,9 +120,7 @@ export default function Sidebar({ role, collapsed, onToggle, onClose }: SidebarP
                 e.currentTarget.src = '/logo2.png';
               }}
             />
-            <span className="font-bold text-sm text-gray-900 tracking-tight">
-              भारत नियोजक
-            </span>
+
           </div>
 
           {/* Collapse icon button */}

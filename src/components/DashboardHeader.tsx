@@ -39,14 +39,9 @@ export default function DashboardHeader({
                   }
                 }}
               />
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs sm:text-sm text-gray-900 tracking-tight">
-                  भारत नियोजक
-                </span>
-                <span className="hidden sm:inline-flex items-center text-[10px] sm:text-xs font-semibold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-200">
-                  {userRole}
-                </span>
-              </div>
+              <span className="hidden sm:inline-flex items-center text-[10px] sm:text-xs font-semibold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-200">
+                {userRole}
+              </span>
             </div>
           </div>
 

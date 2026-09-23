@@ -31,9 +31,7 @@ export default function Navbar() {
                 e.currentTarget.src = '/logo2.png';
               }}
             />
-            <span className="font-bold text-sm sm:text-base text-gray-900 tracking-tight">
-              भारत नियोजक
-            </span>
+
           </Link>
 
           {/* Desktop Navigation */}
