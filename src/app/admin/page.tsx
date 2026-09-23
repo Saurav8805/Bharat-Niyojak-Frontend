@@ -7,8 +7,25 @@ export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to admin login page
-    router.push('/admin/login');
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.role === 'super_admin') {
+          router.replace('/admin/super');
+          return;
+        } else if (user.role === 'admin' || (user.role && user.role.includes('admin'))) {
+          router.replace('/admin/dashboard');
+          return;
+        }
+      } catch (e) {
+        // Ignore error
+      }
+    }
+
+    router.replace('/login');
   }, [router]);
 
   return (

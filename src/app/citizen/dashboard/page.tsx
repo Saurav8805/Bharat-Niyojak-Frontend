@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/DashboardHeader';
 import Sidebar from '@/components/Sidebar';
 import { 
-  FileText, Clock, CheckCircle, AlertCircle, PlusCircle, MapPin, Calendar
+  FileText, Clock, CheckCircle, AlertCircle, XCircle, PlusCircle, MapPin, Calendar, Zap, Droplets, TreePine, Route
 } from 'lucide-react';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 interface User {
   id: string;
@@ -16,29 +18,61 @@ interface User {
   role: string;
 }
 
-interface Complaint {
+interface Issue {
   id: string;
+  title: string;
   category: string;
-  status: string;
+  department: 'electric' | 'road' | 'water' | 'forest';
+  status: 'pending' | 'in_progress' | 'resolved' | 'rejected';
+  priority: 'low' | 'medium' | 'high' | 'critical';
   address: string;
-  created_at: string;
-  department: any;
+  reported_at: string;
+  is_duplicate: boolean;
 }
+
+const DEPARTMENT_ICONS: Record<string, any> = {
+  electric: Zap,
+  road: Route,
+  water: Droplets,
+  forest: TreePine,
+};
+
+const DEPARTMENT_LABELS: Record<string, string> = {
+  electric: '⚡ Electricity',
+  road: '🛣️ Road',
+  water: '💧 Water',
+  forest: '🌳 Forest',
+};
 
 export default function CitizenDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [myComplaints, setMyComplaints] = useState<Complaint[]>([]);
+  const [myIssues, setMyIssues] = useState<Issue[]>([]);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
     in_progress: 0,
-    resolved: 0
+    resolved: 0,
+    rejected: 0
   });
 
-  useEffect(() => { checkAuth(); }, []);
+  useEffect(() => { 
+    const saved = localStorage.getItem('sidebar_collapsed');
+    if (saved !== null) {
+      setSidebarCollapsed(saved === 'true');
+    }
+    checkAuth(); 
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   const checkAuth = () => {
     const token = localStorage.getItem('token');
@@ -48,40 +82,44 @@ export default function CitizenDashboard() {
       const userData = JSON.parse(userStr);
       if (userData.role !== 'citizen') { router.push('/login'); return; }
       setUser(userData);
-      fetchMyComplaints();
+      // Pass userId directly — React state (user) is not set yet at this point
+      fetchMyIssues(userData.id);
     } catch (error) { router.push('/login'); }
   };
 
-  const fetchMyComplaints = async () => {
+  const fetchMyIssues = async (userId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      const response = await fetch(`${API_URL}/complaints`, {
+
+      // Correct endpoint: /api/issues/my-issues (table: issues, field: citizen_id)
+      const response = await fetch(`${API_URL}/issues/my-issues?userId=${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          const complaints = data.data || [];
-          // Filter to show only user's complaints (backend should already do this)
-          const userComplaints = complaints.filter((c: any) => c.user_id === user?.id);
-          setMyComplaints(userComplaints);
-          
-          // Calculate stats
+          // Response shape: { success: true, data: { issues: [...] } }
+          const issues: Issue[] = data.data?.issues || [];
+          setMyIssues(issues);
+
           setStats({
-            total: userComplaints.length,
-            pending: userComplaints.filter((c: any) => c.status === 'pending').length,
-            in_progress: userComplaints.filter((c: any) => c.status === 'in_progress').length,
-            resolved: userComplaints.filter((c: any) => c.status === 'resolved').length
+            total: issues.length,
+            pending: issues.filter((i) => i.status === 'pending').length,
+            in_progress: issues.filter((i) => i.status === 'in_progress').length,
+            resolved: issues.filter((i) => i.status === 'resolved').length,
+            rejected: issues.filter((i) => i.status === 'rejected').length,
           });
         }
+      } else {
+        console.error('Failed to fetch issues, status:', response.status);
+        const errText = await response.text();
+        console.error('Response body:', errText);
       }
 
       setLoading(false);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching issues:', error);
       setLoading(false);
     }
   };
@@ -101,108 +139,124 @@ export default function CitizenDashboard() {
         <DashboardHeader 
           userName={user?.full_name || 'Citizen'}
           userRole="Citizen"
-          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onToggleSidebar={toggleSidebar}
         />
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Welcome Banner */}
-            <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 mb-8 shadow-lg">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-5">
+            {/* Welcome Banner - Compact with official outline hover */}
+            <div className="bg-white rounded-xl p-4 sm:p-5 mb-4 border border-gray-200 shadow-2xs hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200 group">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    Welcome, {user?.full_name}! 🌟
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-0.5 group-hover:text-primary-700 transition-colors">
+                    Welcome, {user?.full_name || 'Citizen'}! 👋
                   </h2>
-                  <p className="text-green-100">Track and manage your complaints</p>
+                  <p className="text-gray-500 text-xs sm:text-sm">Track and manage your reported issues</p>
                 </div>
-                <FileText className="w-16 h-16 text-white opacity-20" />
+                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-primary-600 group-hover:border-primary-200 transition-all">
+                  <FileText className="w-5 h-5" />
+                </div>
               </div>
             </div>
 
             {/* Quick Action Button */}
-            <div className="mb-8">
+            <div className="mb-4">
               <button
-                onClick={() => router.push('/submit-complaint')}
-                className="w-full md:w-auto flex items-center justify-center gap-3 px-6 py-4 bg-primary-600 text-white rounded-xl shadow-lg hover:bg-primary-700 hover:shadow-xl transition-all transform hover:scale-105"
+                onClick={() => router.push('/citizen/issues/new')}
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium text-xs sm:text-sm transition-all shadow-xs hover:shadow"
               >
-                <PlusCircle className="w-6 h-6" />
-                <span className="font-semibold text-lg">Submit New Complaint</span>
+                <PlusCircle className="w-4 h-4" />
+                <span>Report New Issue</span>
               </button>
             </div>
 
             {/* Statistics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-              <StatCard title="Total" value={stats.total} icon={FileText} color="bg-blue-500" />
-              <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-yellow-500" />
-              <StatCard title="In Progress" value={stats.in_progress} icon={AlertCircle} color="bg-orange-500" />
-              <StatCard title="Resolved" value={stats.resolved} icon={CheckCircle} color="bg-green-500" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-4">
+              <StatCard title="Total" value={stats.total} icon={FileText} iconBg="bg-gray-100" iconColor="text-gray-700" />
+              <StatCard title="Pending" value={stats.pending} icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />
+              <StatCard title="In Progress" value={stats.in_progress} icon={AlertCircle} iconBg="bg-blue-50" iconColor="text-blue-600" />
+              <StatCard title="Resolved" value={stats.resolved} icon={CheckCircle} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+              <StatCard title="Rejected" value={stats.rejected} icon={XCircle} iconBg="bg-rose-50" iconColor="text-rose-600" />
             </div>
 
-            {/* My Complaints */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">My Complaints</h3>
+            {/* My Issues */}
+            <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900">My Issues</h3>
                 <button 
-                  onClick={() => router.push('/my-complaints')}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-semibold"
+                  onClick={() => router.push('/citizen/issues')}
+                  className="text-xs text-primary-600 hover:text-primary-700 hover:underline font-semibold"
                 >
                   View All →
                 </button>
               </div>
 
-              {myComplaints.length > 0 ? (
-                <div className="space-y-4">
-                  {myComplaints.slice(0, 5).map((complaint) => (
-                    <div key={complaint.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-900 capitalize">
-                          {complaint.category}
-                        </span>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusColor(complaint.status)}`}>
-                          {complaint.status.replace('_', ' ')}
+              {myIssues.length > 0 ? (
+                <div className="space-y-2.5">
+                  {myIssues.slice(0, 5).map((issue) => (
+                    <div
+                      key={issue.id}
+                      onClick={() => router.push(`/citizen/issues/${issue.id}`)}
+                      className="p-3 bg-gray-50/70 border border-gray-100 rounded-lg hover:bg-white hover:border-primary-300 hover:ring-1 hover:ring-primary-50 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
+                            {issue.title || issue.category}
+                          </span>
+                          {issue.is_duplicate && (
+                            <span className="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.2 rounded font-medium">
+                              Duplicate
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getStatusColor(issue.status)}`}>
+                          {issue.status.replace('_', ' ')}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {complaint.address}
-                        </span>
-                        <span className="flex items-center gap-1">
+                      <div className="flex items-center gap-3 text-[11px] text-gray-500">
+                        {issue.address && (
+                          <span className="flex items-center gap-1 truncate max-w-xs">
+                            <MapPin className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{issue.address}</span>
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1 shrink-0">
                           <Calendar className="w-3 h-3" />
-                          {new Date(complaint.created_at).toLocaleDateString()}
+                          {new Date(issue.reported_at).toLocaleDateString()}
                         </span>
                       </div>
-                      {complaint.department && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {complaint.department.department_name}
+                      {issue.department && (
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          {DEPARTMENT_LABELS[issue.department] || issue.department}
                         </p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg font-medium text-gray-600 mb-2">No complaints yet</p>
-                  <p className="text-sm text-gray-500 mb-4">Submit your first complaint to get started</p>
+                <div className="text-center py-8">
+                  <FileText className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm font-medium text-gray-600 mb-1">No issues reported yet</p>
+                  <p className="text-xs text-gray-500 mb-3">Report your first civic issue to get started</p>
                   <button
-                    onClick={() => router.push('/submit-complaint')}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                    onClick={() => router.push('/citizen/issues/new')}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-xs font-medium transition-colors"
                   >
-                    <PlusCircle className="w-4 h-4" />
-                    <span>Submit Complaint</span>
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>Report Issue</span>
                   </button>
                 </div>
               )}
             </div>
 
             {/* Tips Section */}
-            <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h4 className="font-semibold text-blue-900 mb-2">💡 Tips for Better Results</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
+            <div className="mt-4 bg-primary-50/40 border border-primary-100 rounded-xl p-3.5">
+              <h4 className="font-semibold text-primary-900 text-xs mb-1">💡 Tips for Better Results</h4>
+              <ul className="text-xs text-primary-800 space-y-0.5">
                 <li>• Provide clear photos of the issue</li>
                 <li>• Include accurate location details</li>
                 <li>• Write a brief description of the problem</li>
-                <li>• Track your complaint status regularly</li>
+                <li>• Track your issue status regularly</li>
               </ul>
             </div>
           </div>
@@ -212,25 +266,24 @@ export default function CitizenDashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }: any) {
+function StatCard({ title, value, icon: Icon, iconBg, iconColor }: any) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center mb-4`}>
-        <Icon className="w-6 h-6 text-white" />
+    <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-3.5 hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200 group">
+      <div className={`w-8 h-8 ${iconBg} ${iconColor} rounded-md flex items-center justify-center mb-2 transition-transform group-hover:scale-105 border border-black/5`}>
+        <Icon className="w-4 h-4" />
       </div>
-      <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">{title}</h3>
+      <p className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
     </div>
   );
 }
 
 function getStatusColor(status: string) {
-  const colors: any = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    in_progress: 'bg-blue-100 text-blue-700',
-    resolved: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-700',
-    submitted: 'bg-gray-100 text-gray-700',
+  const colors: Record<string, string> = {
+    pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    in_progress: 'bg-blue-50 text-blue-700 border border-blue-200',
+    resolved: 'bg-green-50 text-green-700 border border-green-200',
+    rejected: 'bg-rose-50 text-rose-700 border border-rose-200',
   };
   return colors[status] || 'bg-gray-100 text-gray-700';
 }

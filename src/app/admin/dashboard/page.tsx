@@ -43,7 +43,12 @@ export default function DeptAdminDashboard() {
     try {
       const user = JSON.parse(userStr);
       const role = user.role as string;
-      if (!role.endsWith('_admin') || role === 'super_admin') {
+      if (role === 'super_admin') {
+        router.push('/admin/super');
+        return;
+      }
+      const isAdmin = role === 'admin' || (typeof role === 'string' && role.includes('admin'));
+      if (!isAdmin) {
         router.push('/login');
         return;
       }
@@ -57,20 +62,45 @@ export default function DeptAdminDashboard() {
       const token = localStorage.getItem('token');
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       
-      // Get department ID first
+      const deptSlug = (user.department || user.role.replace('_admin', '')).toLowerCase();
+      
+      // Fetch issues for admin's department
+      const issuesRes = await fetch(
+        `${API_URL}/issues/admin/department?department=${deptSlug}`,
+        { headers: { 'Authorization': `Bearer ${token}` }}
+      );
+      
+      if (issuesRes.ok) {
+        const issuesData = await issuesRes.json();
+        if (issuesData.success) {
+          const issues = issuesData.data?.issues || [];
+          setRecentComplaints(issues.slice(0, 10));
+          
+          setStats({
+            total_complaints: issues.length,
+            pending: issues.filter((c: any) => c.status === 'pending').length,
+            in_progress: issues.filter((c: any) => c.status === 'in_progress').length,
+            resolved: issues.filter((c: any) => c.status === 'resolved').length,
+            rejected: issues.filter((c: any) => c.status === 'rejected').length
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Fallback: Check departments list
       const deptsRes = await fetch(`${API_URL}/departments`);
       const deptsData = await deptsRes.json();
       
       let departmentId = null;
       if (deptsData.success) {
-        const dept = deptsData.data.departments?.find((d: any) => 
-          d.department_name.toLowerCase().includes(user.role.replace('_admin', ''))
+        const dept = deptsData.data?.departments?.find((d: any) => 
+          d.department_name?.toLowerCase().includes(deptSlug)
         );
         departmentId = dept?.id;
       }
 
       if (departmentId) {
-        // Fetch department complaints
         const complaintsRes = await fetch(
           `${API_URL}/complaints/department/${departmentId}`,
           { headers: { 'Authorization': `Bearer ${token}` }}
@@ -82,7 +112,6 @@ export default function DeptAdminDashboard() {
             const complaints = complaintsData.data || [];
             setRecentComplaints(complaints.slice(0, 10));
             
-            // Calculate stats
             setStats({
               total_complaints: complaints.length,
               pending: complaints.filter((c: any) => c.status === 'pending').length,
@@ -101,15 +130,17 @@ export default function DeptAdminDashboard() {
     }
   };
 
-  const getDepartmentDisplayName = (role: string) => {
-    const dept = role.replace('_admin', '');
+  const getDepartmentDisplayName = (adminProfile: AdminProfile | null) => {
+    if (!adminProfile) return 'Department Admin';
+    const dept = (adminProfile.department || adminProfile.role.replace('_admin', '')).toLowerCase();
     const names: Record<string, string> = {
       road: '🛣️ Road Department',
       water: '💧 Water Department',
+      electric: '⚡ Electricity Department',
       electricity: '⚡ Electricity Department',
       forest: '🌳 Forest Department'
     };
-    return names[dept] || dept;
+    return names[dept] || `${dept.charAt(0).toUpperCase() + dept.slice(1)} Department`;
   };
 
   if (loading) {
@@ -126,66 +157,68 @@ export default function DeptAdminDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader 
           userName={admin?.full_name || 'Admin'}
-          userRole={admin ? getDepartmentDisplayName(admin.role) : 'Admin'}
+          userRole={getDepartmentDisplayName(admin)}
           onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Welcome Banner */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 mb-8 shadow-lg">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-5">
+            {/* Welcome Banner - White with official outline hover */}
+            <div className="bg-white rounded-xl p-4 sm:p-5 mb-4 border border-gray-200 shadow-2xs hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200 group">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    Welcome, {admin?.full_name}! 👋
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-0.5 group-hover:text-primary-700 transition-colors">
+                    Welcome, {admin?.full_name || 'Admin'}! 👋
                   </h2>
-                  <p className="text-blue-100">{getDepartmentDisplayName(admin?.role || '')}</p>
+                  <p className="text-gray-500 text-xs sm:text-sm">{getDepartmentDisplayName(admin)}</p>
                 </div>
-                <Shield className="w-16 h-16 text-white opacity-20" />
+                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-400 group-hover:text-primary-600 group-hover:border-primary-200 transition-all">
+                  <Shield className="w-5 h-5" />
+                </div>
               </div>
             </div>
 
             {/* Statistics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
-              <StatCard title="Total" value={stats.total_complaints} icon={FileText} color="bg-blue-500" />
-              <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-yellow-500" />
-              <StatCard title="In Progress" value={stats.in_progress} icon={Activity} color="bg-orange-500" />
-              <StatCard title="Resolved" value={stats.resolved} icon={CheckCircle} color="bg-green-500" />
-              <StatCard title="Rejected" value={stats.rejected} icon={XCircle} color="bg-red-500" />
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 mb-4">
+              <StatCard title="Total" value={stats.total_complaints} icon={FileText} iconBg="bg-gray-100" iconColor="text-gray-700" />
+              <StatCard title="Pending" value={stats.pending} icon={Clock} iconBg="bg-amber-50" iconColor="text-amber-600" />
+              <StatCard title="In Progress" value={stats.in_progress} icon={Activity} iconBg="bg-blue-50" iconColor="text-blue-600" />
+              <StatCard title="Resolved" value={stats.resolved} icon={CheckCircle} iconBg="bg-emerald-50" iconColor="text-emerald-600" />
+              <StatCard title="Rejected" value={stats.rejected} icon={XCircle} iconBg="bg-rose-50" iconColor="text-rose-600" />
             </div>
 
             {/* Recent Complaints */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Recent Complaints</h3>
+            <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-4 sm:p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900">Recent Complaints</h3>
                 <button 
-                  onClick={() => router.push('/admin/complaints')}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-semibold"
+                  onClick={() => router.push('/admin/issues')}
+                  className="text-xs text-primary-600 hover:text-primary-700 hover:underline font-semibold"
                 >
                   View All →
                 </button>
               </div>
 
               {recentComplaints.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-2.5">
                   {recentComplaints.map((complaint) => (
-                    <div key={complaint.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-900 capitalize">
+                    <div key={complaint.id} className="p-3 bg-gray-50/70 border border-gray-100 rounded-lg hover:bg-white hover:border-primary-300 hover:ring-1 hover:ring-primary-50 transition-all">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900 capitalize">
                           {complaint.category || 'Complaint'}
                         </span>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusColor(complaint.status)}`}>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getStatusColor(complaint.status)}`}>
                           {complaint.status}
                         </span>
                       </div>
                       <p className="text-xs text-gray-600">{complaint.address}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-[10px] text-gray-400 mt-1">
                         {new Date(complaint.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 py-8">No complaints yet</p>
+                <p className="text-center text-gray-500 py-6 text-sm">No complaints yet</p>
               )}
             </div>
           </div>
@@ -195,24 +228,24 @@ export default function DeptAdminDashboard() {
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }: any) {
+function StatCard({ title, value, icon: Icon, iconBg, iconColor }: any) {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className={`w-12 h-12 ${color} rounded-lg flex items-center justify-center mb-4`}>
-        <Icon className="w-6 h-6 text-white" />
+    <div className="bg-white rounded-xl shadow-2xs border border-gray-200 p-3.5 hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200 group">
+      <div className={`w-8 h-8 ${iconBg} ${iconColor} rounded-md flex items-center justify-center mb-2 transition-transform group-hover:scale-105 border border-black/5`}>
+        <Icon className="w-4 h-4" />
       </div>
-      <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">{title}</h3>
+      <p className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
     </div>
   );
 }
 
 function getStatusColor(status: string) {
   const colors: any = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    in_progress: 'bg-blue-100 text-blue-700',
-    resolved: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-700',
+    pending: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    in_progress: 'bg-blue-50 text-blue-700 border border-blue-200',
+    resolved: 'bg-green-50 text-green-700 border border-green-200',
+    rejected: 'bg-red-50 text-red-700 border border-red-200',
   };
   return colors[status] || 'bg-gray-100 text-gray-700';
 }
