@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
+import Sidebar from '@/components/Sidebar';
+import DashboardHeader from '@/components/DashboardHeader';
+import { Camera, Upload, Trash2, CheckCircle, AlertCircle, X, Image as ImageIcon } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -16,6 +19,7 @@ interface Location {
 export default function ReportIssuePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const nativeCameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -36,6 +40,29 @@ export default function ReportIssuePage() {
 
   // AI Analysis results (will be populated after submission)
   const [analyzing, setAnalyzing] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar_collapsed');
+    if (saved !== null) {
+      setSidebarCollapsed(saved === 'true');
+    }
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        setUser(JSON.parse(userStr));
+      } catch {}
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar_collapsed', String(next));
+      return next;
+    });
+  };
 
   useEffect(() => {
     // Check authentication
@@ -54,6 +81,16 @@ export default function ReportIssuePage() {
       }
     };
   }, []);
+
+  // Connect live stream to video element when camera is activated
+  useEffect(() => {
+    if (cameraActive && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch((err) => {
+        console.warn('Video auto-play warning:', err);
+      });
+    }
+  }, [cameraActive, stream]);
 
   const getCurrentLocation = async () => {
     setLocationLoading(true);
@@ -106,6 +143,9 @@ export default function ReportIssuePage() {
         return;
       }
 
+      // Stop camera if running
+      stopCamera();
+
       setImage(file);
       
       // Create preview
@@ -119,42 +159,69 @@ export default function ReportIssuePage() {
   };
 
   const startCamera = async () => {
+    setError('');
+    // Stop any existing stream
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: 1280, height: 720 }
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        setStream(mediaStream);
-        setCameraActive(true);
+      let mediaStream: MediaStream;
+      try {
+        // Try ideal environment camera first (good for back camera on mobile)
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        });
+      } catch (err) {
+        // Fallback for laptops / desktop webcams that don't match specific constraints
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
       }
-    } catch (err) {
+
+      setStream(mediaStream);
+      setCameraActive(true);
+    } catch (err: any) {
       console.error('Camera error:', err);
-      setError('Could not access camera. Please check permissions.');
+      // If camera access fails (or user denies/browser unsupported), trigger mobile native camera or file input
+      if (nativeCameraInputRef.current) {
+        nativeCameraInputRef.current.click();
+      } else {
+        setError('Could not access camera. Please check permissions or upload a photo.');
+      }
     }
   };
 
   const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current;
+    if (videoRef.current) {
       const video = videoRef.current;
-      
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      
+      const canvas = canvasRef.current || document.createElement('canvas');
+
+      const width = video.videoWidth || 1280;
+      const height = video.videoHeight || 720;
+      canvas.width = width;
+      canvas.height = height;
+
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        
+        ctx.drawImage(video, 0, 0, width, height);
+
         canvas.toBlob((blob) => {
           if (blob) {
-            const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
-            setImage(file);
+            const capturedFile = new File([blob], `issue-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+            setImage(capturedFile);
             setImagePreview(canvas.toDataURL('image/jpeg'));
             stopCamera();
+            setError('');
           }
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', 0.92);
       }
     }
   };
@@ -163,8 +230,11 @@ export default function ReportIssuePage() {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
-      setCameraActive(false);
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setCameraActive(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -236,120 +306,135 @@ export default function ReportIssuePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link href="/citizen/dashboard" className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Dashboard
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-900 mt-2">Report New Issue</h1>
-              <p className="text-sm text-gray-600 mt-1">Upload an image and describe the problem</p>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar role="citizen" collapsed={sidebarCollapsed} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <DashboardHeader 
+          userName={user?.full_name || 'Citizen'}
+          userRole="Citizen"
+          onToggleSidebar={toggleSidebar}
+        />
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+            <div className="mb-4">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Report New Issue</h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Upload an image and describe the problem</p>
             </div>
-          </div>
-        </div>
-      </header>
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          {/* Image Upload / Capture Section */}
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-4 sm:p-5 hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm sm:text-base font-semibold text-gray-900">1. Issue Photo (Upload or Capture)</h2>
+              <span className="text-[11px] text-primary-700 font-semibold px-2 py-0.5 bg-primary-50 rounded">Required</span>
+            </div>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Image Upload Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">1. Upload or Capture Image</h2>
-            
+            {/* Hidden Inputs */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <input
+              ref={nativeCameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <canvas ref={canvasRef} className="hidden" />
+
+            {/* When No Image is Selected and Camera is NOT Active */}
             {!imagePreview && !cameraActive && (
-              <div className="space-y-4">
-                {/* Upload Button */}
+              <div className="space-y-3">
+                {/* Upload Box */}
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition cursor-pointer"
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-5 sm:p-6 text-center hover:border-primary-400 hover:bg-primary-50/40 transition cursor-pointer group"
                 >
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="mt-2 text-sm text-gray-600">
-                    Click to upload image or drag and drop
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">PNG, JPG up to 10MB</p>
-                </div>
-                
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-
-                {/* Camera Button */}
-                <div className="flex items-center justify-center">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 blur opacity-75 rounded-lg"></div>
-                    <button
-                      type="button"
-                      onClick={startCamera}
-                      className="relative px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-600 transition flex items-center gap-2"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      Open Camera
-                    </button>
+                  <div className="w-10 h-10 mx-auto mb-2 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Upload className="w-5 h-5" />
                   </div>
+                  <p className="text-xs text-gray-800 font-semibold">
+                    Click to browse or drag & drop issue photo
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Supports PNG, JPG, WebP up to 10MB</p>
+                </div>
+
+                {/* Camera / Upload Action Buttons */}
+                <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={startCamera}
+                    className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-2xs"
+                  >
+                    <Camera className="w-4 h-4" />
+                    Open Camera
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 bg-white hover:bg-primary-50 text-gray-700 hover:text-primary-700 border border-gray-300 hover:border-primary-300 rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <Upload className="w-4 h-4 text-gray-500" />
+                    Upload from Device
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* Camera View */}
+            {/* Live Camera Viewfinder */}
             {cameraActive && (
-              <div className="space-y-4">
-                <div className="relative bg-black rounded-lg overflow-hidden">
+              <div className="space-y-3">
+                <div className="relative bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[260px] max-h-[400px]">
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
-                    className="w-full h-auto"
+                    muted
+                    className="w-full h-auto max-h-[400px] object-contain"
                   />
-                  <canvas ref={canvasRef} className="hidden" />
+                  {/* Viewfinder crosshairs overlay */}
+                  <div className="absolute inset-0 pointer-events-none border-2 border-white/20 rounded-lg flex items-center justify-center">
+                    <div className="w-48 h-48 border border-white/40 rounded-lg"></div>
+                  </div>
+                  <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium rounded flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    Live Camera Feed
+                  </div>
                 </div>
-                
-                <div className="flex gap-4 justify-center">
+
+                <div className="flex flex-wrap gap-2.5 justify-center items-center">
                   <button
                     type="button"
                     onClick={capturePhoto}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2"
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-xs"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    <Camera className="w-4 h-4" />
                     Capture Photo
                   </button>
                   <button
                     type="button"
                     onClick={stopCamera}
-                    className="px-6 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition"
+                    className="px-3.5 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-xs sm:text-sm font-medium transition flex items-center gap-1"
                   >
-                    Cancel
+                    <X className="w-4 h-4" />
+                    Cancel Camera
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Image Preview */}
-            {imagePreview && (
-              <div className="space-y-4">
-                <div className="relative">
+            {/* Photo Captured / Uploaded Preview */}
+            {imagePreview && !cameraActive && (
+              <div className="space-y-3">
+                <div className="relative max-h-80 overflow-hidden rounded-lg border border-gray-200 bg-gray-900/5 flex items-center justify-center">
                   <img
                     src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-auto rounded-lg"
+                    alt="Captured or Uploaded Issue Photo"
+                    className="w-full max-h-80 object-contain rounded-lg"
                   />
                   <button
                     type="button"
@@ -357,64 +442,92 @@ export default function ReportIssuePage() {
                       setImage(null);
                       setImagePreview('');
                     }}
-                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                    className="absolute top-2 right-2 p-1.5 bg-rose-600 text-white rounded-full hover:bg-rose-700 transition shadow-sm"
+                    title="Remove Image"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-sm text-green-600 flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Image ready for upload
-                </p>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold text-emerald-900">
+                        {image?.name ? image.name : 'Photo ready for report'}
+                      </p>
+                      <p className="text-[10px] text-emerald-700">
+                        {image?.size ? `${(image.size / (1024 * 1024)).toFixed(2)} MB` : ''} • Image ready for AI analysis
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={startCamera}
+                      className="px-2.5 py-1 text-xs bg-white text-gray-700 hover:text-primary-700 border border-gray-300 hover:border-primary-300 rounded hover:bg-primary-50 transition flex items-center gap-1 font-medium"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-primary-600" />
+                      Retake
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-2.5 py-1 text-xs bg-white text-gray-700 hover:text-primary-700 border border-gray-300 hover:border-primary-300 rounded hover:bg-primary-50 transition flex items-center gap-1 font-medium"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-primary-600" />
+                      Change
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
 
           {/* Description Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">2. Brief Description</h2>
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-4 sm:p-5 hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200">
+            <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-2">2. Brief Description</h2>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Briefly describe the issue (e.g., 'Large pothole', 'No water supply', 'Broken streetlight')..."
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+              rows={3}
+              className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition resize-none bg-white"
               maxLength={500}
             />
-            <p className="mt-2 text-sm text-gray-500 text-right">{description.length}/500</p>
-            <p className="mt-2 text-sm text-gray-600">
-              💡 <strong>Tip:</strong> AI will analyze your image and generate a detailed description automatically
-            </p>
+            <div className="flex items-center justify-between mt-1 text-[11px] text-gray-500">
+              <span className="flex items-center gap-1">
+                💡 <strong>Tip:</strong> AI will analyze your image and generate a detailed description automatically
+              </span>
+              <span>{description.length}/500</span>
+            </div>
           </div>
 
           {/* Location Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">3. Location</h2>
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-4 sm:p-5 hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200">
+            <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-2.5">3. Location</h2>
             {locationLoading ? (
-              <div className="flex items-center gap-3 text-gray-600">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 text-xs text-gray-600 py-2">
+                <svg className="animate-spin h-4 w-4 text-primary-600" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
                 Getting your location...
               </div>
             ) : location ? (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="space-y-2">
+                <div className="flex items-start gap-2.5 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <svg className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-green-900">Location captured</p>
+                    <p className="text-xs font-semibold text-emerald-900">Location captured</p>
                     {location.address && (
-                      <p className="text-sm text-green-700 mt-1">{location.address}</p>
+                      <p className="text-xs text-emerald-800 mt-0.5">{location.address}</p>
                     )}
-                    <p className="text-xs text-green-600 mt-1">
+                    <p className="text-[10px] text-emerald-600 mt-0.5">
                       Coordinates: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
                     </p>
                   </div>
@@ -422,20 +535,20 @@ export default function ReportIssuePage() {
                 <button
                   type="button"
                   onClick={getCurrentLocation}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-xs text-primary-600 hover:text-primary-700 font-medium"
                 >
                   Update Location
                 </button>
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">Location not available</p>
+              <div className="space-y-2">
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-800">Location not available</p>
                 </div>
                 <button
                   type="button"
                   onClick={getCurrentLocation}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                  className="px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-xs font-medium"
                 >
                   Enable Location
                 </button>
@@ -445,35 +558,35 @@ export default function ReportIssuePage() {
 
           {/* Error/Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 px-3 py-2 rounded-lg text-xs font-medium">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-2 rounded-lg text-xs font-medium">
               {success}
             </div>
           )}
 
           {/* Submit Button */}
-          <div className="flex gap-4">
+          <div className="flex gap-2.5">
             <button
               type="submit"
               disabled={loading || !image || !description || !location}
-              className="flex-1 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="flex-1 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs sm:text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <span className="flex items-center justify-center gap-1.5">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   {analyzing ? 'AI Analyzing...' : 'Submitting...'}
                 </span>
               ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="flex items-center justify-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Report Issue
@@ -482,21 +595,21 @@ export default function ReportIssuePage() {
             </button>
             <Link
               href="/citizen/dashboard"
-              className="px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
+              className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-50 transition"
             >
               Cancel
             </Link>
           </div>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-primary-50/70 border border-primary-200 rounded-xl p-3 sm:p-4">
+            <div className="flex items-start gap-2.5">
+              <svg className="w-5 h-5 text-primary-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-blue-900 mb-1">How it works</h4>
-                <ul className="text-sm text-blue-800 space-y-1">
+                <h4 className="text-xs font-semibold text-primary-900 mb-0.5">How it works</h4>
+                <ul className="text-xs text-primary-800 space-y-0.5">
                   <li>• AI will analyze your image and generate detailed description</li>
                   <li>• AI will automatically detect the appropriate department (electric, road, water, forest)</li>
                   <li>• The issue will be assigned to the relevant department admin</li>
@@ -506,7 +619,9 @@ export default function ReportIssuePage() {
             </div>
           </div>
         </form>
-      </main>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

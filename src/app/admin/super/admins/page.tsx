@@ -14,6 +14,10 @@ interface User {
   phone_number?: string;
   role: string;
   department?: string;
+  dept_key?: string;
+  department_display?: string;
+  civic_category?: string;
+  icon?: string;
   is_active: boolean;
   created_at: string;
 }
@@ -158,74 +162,84 @@ export default function ManageAdminsPage() {
           onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-5">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Admins</h1>
-              <p className="text-gray-600">Create, update, and manage department administrators</p>
+            <div className="mb-4">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-0.5">Manage Admins</h1>
+              <p className="text-xs sm:text-sm text-gray-500">Create, update, and manage department administrators</p>
             </div>
 
             {/* Add Admin Button */}
-            <div className="mb-6">
+            <div className="mb-4">
               <button
                 onClick={() => setShowAddAdminModal(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-xs text-xs sm:text-sm font-medium"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
                 <span>Add New Admin</span>
               </button>
             </div>
 
             {/* Admins Table */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50/80 border-b border-gray-100">
                     <tr>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Name</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Email</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Phone</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Department</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Status</th>
-                      <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
+                      <th className="text-left py-2.5 px-3 text-xs font-semibold text-gray-700">Name</th>
+                      <th className="text-left py-2.5 px-3 text-xs font-semibold text-gray-700">Email</th>
+                      <th className="text-left py-2.5 px-3 text-xs font-semibold text-gray-700">Phone</th>
+                      <th className="text-left py-2.5 px-3 text-xs font-semibold text-gray-700">Department</th>
+                      <th className="text-left py-2.5 px-3 text-xs font-semibold text-gray-700">Status</th>
+                      <th className="text-right py-2.5 px-3 text-xs font-semibold text-gray-700">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {admins.length > 0 ? (
                       admins.map((admin) => (
-                        <tr key={admin.id} className="border-t border-gray-100 hover:bg-gray-50">
-                          <td className="py-3 px-4 text-sm text-gray-900">{admin.full_name}</td>
-                          <td className="py-3 px-4 text-sm text-gray-600">{admin.email}</td>
-                          <td className="py-3 px-4 text-sm text-gray-600">{admin.phone_number || 'N/A'}</td>
-                          <td className="py-3 px-4 text-sm text-gray-600 capitalize">
-                            {admin.department || admin.role.replace('_admin', '')}
+                        <tr key={admin.id} className="border-t border-gray-100 hover:bg-primary-50/40 transition-colors">
+                          <td className="py-2.5 px-3 text-xs font-medium text-gray-900">{admin.full_name}</td>
+                          <td className="py-2.5 px-3 text-xs text-gray-600">{admin.email}</td>
+                          <td className="py-2.5 px-3 text-xs text-gray-600">{admin.phone_number || 'N/A'}</td>
+                          <td className="py-2.5 px-3 text-xs">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="font-medium text-gray-900 flex items-center gap-1.5">
+                                <span className="text-sm shrink-0">{admin.icon || '🏛️'}</span>
+                                <span className="truncate max-w-[260px] font-semibold">{admin.department_display || admin.department}</span>
+                              </span>
+                              {admin.civic_category && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary-50 text-primary-700 border border-primary-100 w-fit">
+                                  {admin.civic_category}
+                                </span>
+                              )}
+                            </div>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-2.5 px-3">
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                                 admin.is_active
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'bg-red-100 text-red-700'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-rose-50 text-rose-700 border border-rose-200'
                               }`}
                             >
                               {admin.is_active ? 'Active' : 'Inactive'}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="py-2.5 px-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
                               <button
                                 onClick={() => setEditingAdmin(admin)}
-                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
                                 title="Edit"
                               >
-                                <Edit className="w-4 h-4" />
+                                <Edit className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteAdmin(admin.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
                                 title="Delete"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </td>

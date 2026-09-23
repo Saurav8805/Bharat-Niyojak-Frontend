@@ -80,29 +80,29 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-white flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center px-3 py-6 sm:py-8">
+      <div className="max-w-sm w-full">
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-5">
           <Link href="/">
             <Image 
               src="/logo.png" 
               alt="Bharat Niyojak" 
-              width={220} 
-              height={80}
-              className="h-16 w-auto mx-auto mb-4"
+              width={160} 
+              height={56}
+              className="h-10 sm:h-12 w-auto mx-auto mb-2.5 object-contain"
             />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-600 mt-2">Register as a Citizen</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Create Account</h1>
+          <p className="text-xs text-gray-600">Register as a Citizen</p>
         </div>
 
         {/* Registration Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <form onSubmit={handleRegister} className="space-y-5">
+        <div className="bg-white rounded-xl shadow-xs p-5 sm:p-6 border border-gray-200 hover:border-primary-400 hover:ring-2 hover:ring-primary-50 transition-all duration-200">
+          <form onSubmit={handleRegister} className="space-y-3.5">
             {/* Full Name */}
             <div>
-              <label htmlFor="full_name" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="full_name" className="block text-xs font-semibold text-gray-700 mb-1">
                 Full Name
               </label>
               <input
@@ -112,14 +112,14 @@ export default function RegisterPage() {
                 required
                 value={formData.full_name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+                className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 placeholder="Your full name"
               />
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-xs font-semibold text-gray-700 mb-1">
                 Email Address
               </label>
               <input
@@ -129,14 +129,14 @@ export default function RegisterPage() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+                className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 placeholder="your.email@example.com"
               />
             </div>
 
             {/* Phone Number */}
             <div>
-              <label htmlFor="phone_number" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="phone_number" className="block text-xs font-semibold text-gray-700 mb-1">
                 Mobile Number
               </label>
               <input
@@ -147,14 +147,14 @@ export default function RegisterPage() {
                 maxLength={10}
                 value={formData.phone_number}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+                className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 placeholder="10-digit mobile number"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-xs font-semibold text-gray-700 mb-1">
                 Password
               </label>
               <input
@@ -164,14 +164,14 @@ export default function RegisterPage() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+                className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 placeholder="Minimum 6 characters"
               />
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-xs font-semibold text-gray-700 mb-1">
                 Confirm Password
               </label>
               <input
@@ -181,14 +181,14 @@ export default function RegisterPage() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
+                className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
                 placeholder="Re-enter password"
               />
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-xs">
                 {error}
               </div>
             )}
@@ -197,11 +197,11 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary-500 text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary-600 text-white py-2 px-3 text-xs sm:text-sm rounded-md font-semibold hover:bg-primary-700 transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
@@ -214,11 +214,11 @@ export default function RegisterPage() {
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-gray-200"></div>
             </div>
-            <div className="relative flex justify-center text-sm">
+            <div className="relative flex justify-center text-xs">
               <span className="px-2 bg-white text-gray-500">Already have an account?</span>
             </div>
           </div>
@@ -226,15 +226,15 @@ export default function RegisterPage() {
           {/* Login Link */}
           <Link 
             href="/login"
-            className="block w-full text-center py-3 border-2 border-primary-500 text-primary-600 font-semibold rounded-lg hover:bg-primary-50 transition"
+            className="block w-full text-center py-2 px-3 border border-primary-300 text-primary-700 text-xs sm:text-sm font-semibold rounded-md hover:bg-primary-50 transition"
           >
             Login
           </Link>
         </div>
 
         {/* Back to Home */}
-        <div className="text-center mt-6">
-          <Link href="/" className="text-primary-600 hover:text-primary-700 text-sm font-medium">
+        <div className="text-center mt-4">
+          <Link href="/" className="text-gray-500 hover:text-gray-700 text-xs font-medium">
             ← Back to Home
           </Link>
         </div>
